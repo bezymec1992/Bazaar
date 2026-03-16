@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/header.css" />
+    <link rel="stylesheet" href="css/footer.css" />
+    <link rel="stylesheet" href="css/product.css" />
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container header-inner">
+        <div class="logo">
+          <img src="imgs/logo.png" width="70" height="50" alt="logo" />
+          <span>Bazaar</span>
+        </div>
+
+        <nav class="nav" id="nav">
+          <a href="index.html">Home</a>
+          <a href="catalog.html">Catalog</a>
+          <a href="index.html#about">About</a>
+          <a href="index.html#contact">Contact</a>
+        </nav>
+
+        <div class="burger" id="burger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </header>
+
+    <section class="product container">
+      <a href="catalog.html" class="arrow-left">
+        <svg viewBox="0 0 24 24" class="arrow-icon">
+          <path
+            d="M21,11H5.41l1.3-1.29A1,1,0,0,0,5.29,8.29l-3,3a1,1,0,0,0,0,1.42l3,3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42L5.41,13H21a1,1,0,0,0,0-2Z"
+            fill="currentColor"
+          />
+        </svg>
+        Back to catalog
+      </a>
+
+      <div class="product__wrapper">
+        <div class="product__image">
+          <img id="image" alt="product-img" />
+        </div>
+
+        <div class="product__info">
+          <h1 id="title"></h1>
+          <p id="price" class="product__price"></p>
+          <p id="desc" class="product__desc"></p>
+          <a href="mailto:info@bazaarantiques.ie" class="product__btn"> Enquire about this item </a>
+        </div>
+      </div>
+    </section>
+
+    <div class="lightbox" id="lightbox">
+      <img id="lightbox-img" />
+    </div>
+
+    <footer class="footer reveal">
+      <div class="footer__container">
+        <div class="footer__col footer__brand">
+          <div class="footer__logo">
+            <img src="imgs/logo.png" width="70" height="50" alt="logo" />
+            <p>Bazaar</p>
+          </div>
+          <p class="footer__text">
+            Antiques & Collectables<br />
+            est 1879
+          </p>
+        </div>
+
+        <div class="footer__col footer__address">
+          <h4 class="footer__title">Address</h4>
+          <p>
+            Mullingar<br />
+            Co. Westmeath<br />
+            Ireland
+          </p>
+        </div>
+
+        <div class="footer__col footer__links">
+          <h4 class="footer__title">Links</h4>
+          <ul class="footer__list">
+            <li><a href="#">Catalog</a></li>
+            <li><a href="#">About us</a></li>
+            <li><a href="#">Delivery</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col footer__contact">
+          <h4 class="footer__title">Contact</h4>
+          <p>+353 87 123 4567</p>
+          <p><a href="#">Instagram</a></p>
+          <p><a href="mailto:info@bazaarantiques.ie">info@bazaarantiques.ie</a></p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/product.js"></script>
+    <script src="js/header.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catalog</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/header.css" />
+    <link rel="stylesheet" href="css/catalog.css" />
+    <link rel="stylesheet" href="css/footer.css" />
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container header-inner">
+        <div class="logo">
+          <img src="imgs/logo.png" width="70" height="50" alt="logo" />
+          <span>Bazaar</span>
+        </div>
+
+        <nav class="nav" id="nav">
+          <a href="index.html">Home</a>
+          <a href="catalog.html">Catalog</a>
+          <a href="index.html#about">About</a>
+          <a href="index.html#contact">Contact</a>
+        </nav>
+
+        <div class="burger" id="burger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </header>
+
+    <main class="catalog__main">
+      <div class="container">
+        <a href="index.html" class="arrow-left">
+          <svg viewBox="0 0 24 24" class="arrow-icon">
+            <path
+              d="M21,11H5.41l1.3-1.29A1,1,0,0,0,5.29,8.29l-3,3a1,1,0,0,0,0,1.42l3,3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42L5.41,13H21a1,1,0,0,0,0-2Z"
+              fill="currentColor"
+            />
+          </svg>
+          Back
+        </a>
+        <h1>Antique Collection</h1>
+
+        <div class="filter">
+          <button class="filter-toggle" id="filterToggle">
+            Category
+            <svg class="filter-arrow" viewBox="0 0 24 24">
+              <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+          </button>
+
+          <div class="filter-menu">
+            <button onclick="showAll()">All</button>
+            <button onclick="filterCategory('painting', this)">Paintings</button>
+            <button onclick="filterCategory('furniture', this)">Furniture</button>
+            <button onclick="filterCategory('glass', this)">Ceramics & glass</button>
+            <button onclick="filterCategory('others', this)">Others</button>
+          </div>
+        </div>
+        <div id="artists" style="display: none"></div>
+
+        <div id="catalog"></div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__container">
+        <div class="footer__col footer__brand">
+          <div class="footer__logo">
+            <img src="imgs/logo.png" width="70" height="50" alt="logo" />
+            <p>Bazaar</p>
+          </div>
+          <p class="footer__text">
+            Antiques & Collectables<br />
+            est 1879
+          </p>
+        </div>
+
+        <div class="footer__col footer__address">
+          <h4 class="footer__title">Address</h4>
+          <p>
+            Mullingar<br />
+            Co. Westmeath<br />
+            Ireland
+          </p>
+        </div>
+
+        <div class="footer__col footer__links">
+          <h4 class="footer__title">Links</h4>
+          <ul class="footer__list">
+            <li><a href="#">Catalog</a></li>
+            <li><a href="#">About us</a></li>
+            <li><a href="#">Delivery</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col footer__contact">
+          <h4 class="footer__title">Contact</h4>
+          <p>+353 87 123 4567</p>
+          <p><a href="#">Instagram</a></p>
+          <p><a href="mailto:info@bazaarantiques.ie">info@bazaarantiques.ie</a></p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/header.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/catalog.js"></script>
+
+    <script>
+      initCatalog();
+    </script>
+  </body>
+</html>

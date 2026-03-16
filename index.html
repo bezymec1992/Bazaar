@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Antique Collection</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/header.css" />
+    <link rel="stylesheet" href="css/footer.css" />
+    <link rel="stylesheet" href="css/home.css" />
+    <link rel="stylesheet" href="css/about.css" />
+    <link rel="stylesheet" href="css/form.css" />
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container header-inner">
+        <div class="logo">
+          <img src="imgs/logo.png" width="70" height="50" alt="logo" />
+          <span>Bazaar</span>
+        </div>
+
+        <nav class="nav" id="nav">
+          <a href="index.html">Home</a>
+          <a href="catalog.html">Catalog</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </nav>
+
+        <div class="burger" id="burger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero reveal">
+      <div class="hero-content">
+        <h1>Private Antique Collection</h1>
+
+        <p>Paintings, furniture and rare antique objects</p>
+
+        <a class="btn" href="catalog.html">Explore Collection</a>
+      </div>
+    </section>
+
+    <section id="about" class="container reveal">
+      <h2 class="about__title">About Bazaar</h2>
+      <div class="about__wrapper">
+        <div class="about__info">
+          <h3>Bazaar – Antiques & Collectables</h3>
+          <p>
+            Founded in 1879, Bazaar has been a small but carefully curated antique shop located in
+            Mullingar, Co. Westmeath, Ireland. Over generations, the collection has grown to include
+            paintings, furniture, decorative objects, and rare collectables sourced from across
+            Europe.
+          </p>
+          <p>
+            Each piece in our collection carries a unique history. We focus on objects that reflect
+            craftsmanship, cultural heritage, and timeless design. From vintage furniture to small
+            decorative treasures, every item is selected with attention to authenticity and
+            character.
+          </p>
+          <p>
+            Our aim is to preserve and share objects that connect the past with the present,
+            offering collectors and enthusiasts the opportunity to discover pieces with real
+            historical value.
+          </p>
+        </div>
+        <div class="about__img">
+          <img src="imgs/about.webp" alt="owner" />
+        </div>
+      </div>
+    </section>
+
+    <section class="featured container reveal">
+      <h2 class="featured__title">Featured items</h2>
+
+      <div class="featured__wrapper">
+        <div class="featured__img">
+          <img src="imgs/featured1.webp" alt="" />
+        </div>
+
+        <div class="featured__img">
+          <img src="imgs/featured2.webp" alt="" />
+        </div>
+
+        <div class="featured__img">
+          <img src="imgs/featured3.webp" alt="" />
+        </div>
+      </div>
+    </section>
+
+    <section class="form reveal" id="contact">
+      <div class="container form__container">
+        <div class="form__info">
+          <h2>Get in touch</h2>
+          <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Distinctio ipsam quos, nihil
+            ullam cupiditate libero saepe tenetur, voluptatum eveniet aliquid ducimus eligendi
+            similique facere obcaecati doloribus quo veniam? Tempore hic modi quas pariatur labore
+            minima cum et obcaecati eligendi vero. Unde perspiciatis magnam ipsam corporis. Qui
+            ipsam aut voluptate numquam.
+          </p>
+        </div>
+        <form class="contact-form" id="contactForm">
+          <div class="contact-form__field">
+            <label for="email" class="contact-form__label">Email</label>
+            <input type="email" id="email" class="contact-form__input" required />
+          </div>
+
+          <div class="contact-form__field">
+            <label for="message" class="contact-form__label">Message</label>
+            <textarea id="message" class="contact-form__textarea" required></textarea>
+          </div>
+
+          <button type="submit" class="contact-form__button">Send</button>
+        </form>
+
+        <div class="toast" id="toast">
+          <div class="toast__icon">✔</div>
+          <div class="toast__text">Form has been sent</div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer reveal">
+      <div class="footer__container">
+        <div class="footer__col footer__brand">
+          <div class="footer__logo">
+            <img src="imgs/logo.png" width="70" height="50" alt="logo" />
+            <p>Bazaar</p>
+          </div>
+          <p class="footer__text">
+            Antiques & Collectables<br />
+            est 1879
+          </p>
+        </div>
+
+        <div class="footer__col footer__address">
+          <h4 class="footer__title">Address</h4>
+          <p>
+            Mullingar<br />
+            Co. Westmeath<br />
+            Ireland
+          </p>
+        </div>
+
+        <div class="footer__col footer__links">
+          <h4 class="footer__title">Links</h4>
+          <ul class="footer__list">
+            <li><a href="#">Catalog</a></li>
+            <li><a href="#">About us</a></li>
+            <li><a href="#">Delivery</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer__col footer__contact">
+          <h4 class="footer__title">Contact</h4>
+          <p>+353 87 123 4567</p>
+          <p><a href="#">Instagram</a></p>
+          <p><a href="mailto:info@bazaarantiques.ie">info@bazaarantiques.ie</a></p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/header.js"></script>
+    <script src="js/form.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
