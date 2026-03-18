@@ -141,7 +141,7 @@ button:hover {
   position: absolute;
   top: 110%;
   left: 0;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 8px 8px 8px;
 
   display: none;
 
@@ -159,10 +159,11 @@ button:hover {
   background: white;
   text-align: left;
   cursor: pointer;
+  border-radius: unset;
 }
 
 .filter-menu button:hover {
-  background: #f5f5f5;
+  background: #dcdcdc;
 }
 
 .filter.open .filter-menu {
@@ -178,9 +179,100 @@ button:hover {
   border-radius: 8px 8px 0 0;
 }
 
+.submenu {
+  position: relative;
+}
+
+.submenu-content {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: 0;
+  background: white;
+  border: 1px solid #d4af37;
+  border-radius: 0 5px 5px 0;
+  width: fit-content;
+  white-space: nowrap;
+}
+
+.submenu-content hr {
+  margin: 6px 0;
+  border: none;
+  border-top: 1px solid #eee;
+}
+
+.submenu-content button:first-child {
+  font-weight: bold;
+}
+
+.filter-menu button.active {
+  background: #000000;
+}
+
+@media (hover: hover) {
+  .submenu:hover .submenu-content {
+    display: block;
+  }
+}
+
+.submenu-content button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 5px;
+}
+
+.submenu.open .submenu-content {
+  display: block;
+}
+
+.paint__btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.paint__btn svg {
+  rotate: 180deg;
+  width: 40px;
+  height: 20px;
+}
+
+.catalog__input {
+  display: block;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #d4af37;
+  transition: 0.3s all;
+  color: black;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 400px;
+  font-size: 16px;
+}
+.catalog__input:focus {
+  outline: none;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
+}
+
 @media (max-width: 768px) {
   .catalog__main {
     margin-top: 20px;
+  }
+
+  .paint__btn .arrow-right {
+    transition: transform 0.2s ease;
+  }
+
+  .submenu.open .arrow-right {
+    transform: rotate(90deg);
+  }
+  .catalog__input {
+    width: 100%;
+    margin-bottom: 10px;
   }
 }
 

@@ -1,30 +1,56 @@
+const paintingsBtn = document.getElementById('paintingsBtn');
+
+if (paintingsBtn) {
+  paintingsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+
+    const submenu = paintingsBtn.parentElement;
+    submenu.classList.toggle('open');
+  });
+}
 let allProducts = [];
 
 async function initCatalog() {
   allProducts = await getProducts();
-
   createArtistButtons();
-
   showProducts(allProducts);
 }
 
 function createArtistButtons() {
-  const container = document.getElementById('artists');
+  const container = document.getElementById('paintingsSubmenu');
 
   const paintings = allProducts.filter(p => p.category === 'painting');
-
   const artists = [...new Set(paintings.map(p => p.artist))];
 
   container.innerHTML = '';
 
+  // 🔥 ДОБАВЛЯЕМ "All Paintings"
+  const allBtn = document.createElement('button');
+  allBtn.textContent = 'All Paintings';
+
+  allBtn.onclick = () => {
+    filterCategory('painting', allBtn);
+  };
+
+  container.appendChild(allBtn);
+
+  // (опционально разделитель)
+  const divider = document.createElement('hr');
+  container.appendChild(divider);
+
+  // 👇 дальше как было
   artists.forEach(name => {
     const count = paintings.filter(p => p.artist === name).length;
 
     const btn = document.createElement('button');
-
     btn.textContent = `${name} (${count})`;
 
-    btn.onclick = () => filterArtist(name);
+    btn.onclick = () => {
+      filterArtist(name);
+      setFilterLabel(name);
+      setActive(btn);
+      closeAllFilters();
+    };
 
     container.appendChild(btn);
   });
@@ -57,19 +83,10 @@ function showProducts(products) {
 
 function filterCategory(category, btn) {
   const filtered = allProducts.filter(p => p.category === category);
-
   showProducts(filtered);
-
-  const artistBlock = document.getElementById('artists');
-
-  if (category === 'painting') {
-    artistBlock.style.display = 'block';
-  } else {
-    artistBlock.style.display = 'none';
-  }
-
   setFilterLabel(btn.textContent);
-  filter.classList.remove('open');
+  setActive(btn);
+  closeAllFilters();
 }
 
 function filterArtist(name) {
@@ -78,13 +95,16 @@ function filterArtist(name) {
   );
 
   showProducts(filtered);
+  setFilterLabel(name);
+
+  closeAllFilters();
 }
 
-function showAll() {
+function showAll(btn) {
   showProducts(allProducts);
-  document.getElementById('artists').style.display = 'none';
-  setFilterLabel('All');
-  filter.classList.remove('open');
+  setFilterLabel(btn.textContent);
+  setActive(btn);
+  closeAllFilters();
 }
 
 const filter = document.querySelector('.filter');
@@ -97,7 +117,7 @@ if (filter && toggle) {
 
   document.addEventListener('click', e => {
     if (!filter.contains(e.target)) {
-      filter.classList.remove('open');
+      closeAllFilters();
     }
   });
 }
@@ -107,4 +127,34 @@ function setFilterLabel(text) {
   if (btn) {
     btn.firstChild.nodeValue = text + ' ';
   }
+}
+
+function closeAllFilters() {
+  filter.classList.remove('open');
+
+  document.querySelectorAll('.submenu').forEach(s => {
+    s.classList.remove('open');
+  });
+}
+
+function setActive(btn) {
+  document.querySelectorAll('.filter-menu button').forEach(b => b.classList.remove('active'));
+
+  btn.classList.add('active');
+}
+
+const searchInput = document.getElementById('searchInput');
+
+if (searchInput) {
+  searchInput.addEventListener('input', e => {
+    const value = e.target.value.toLowerCase();
+
+    const filtered = allProducts.filter(
+      p =>
+        p.title.toLowerCase().includes(value) ||
+        (p.artist && p.artist.toLowerCase().includes(value))
+    );
+
+    showProducts(filtered);
+  });
 }

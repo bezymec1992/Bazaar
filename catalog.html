@@ -49,7 +49,7 @@
           Back
         </a>
         <h1>Antique Collection</h1>
-
+        <input type="text" id="searchInput" class="catalog__input" placeholder="Search..." />
         <div class="filter">
           <button class="filter-toggle" id="filterToggle">
             Category
@@ -59,14 +59,24 @@
           </button>
 
           <div class="filter-menu">
-            <button onclick="showAll()">All</button>
-            <button onclick="filterCategory('painting', this)">Paintings</button>
+            <button onclick="showAll(this)">All</button>
+            <div class="submenu">
+              <button id="paintingsBtn" class="paint__btn" v-cloak>
+                Paintings
+                <svg viewBox="0 0 24 24" class="arrow-right">
+                  <path
+                    d="M21,11H5.41l1.3-1.29A1,1,0,0,0,5.29,8.29l-3,3a1,1,0,0,0,0,1.42l3,3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42L5.41,13H21a1,1,0,0,0,0-2Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <div class="submenu-content" id="paintingsSubmenu"></div>
+            </div>
             <button onclick="filterCategory('furniture', this)">Furniture</button>
             <button onclick="filterCategory('glass', this)">Ceramics & glass</button>
             <button onclick="filterCategory('others', this)">Others</button>
           </div>
         </div>
-        <div id="artists" style="display: none"></div>
 
         <div id="catalog"></div>
       </div>
