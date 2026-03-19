@@ -34,11 +34,6 @@ function createArtistButtons() {
 
   container.appendChild(allBtn);
 
-  // (опционально разделитель)
-  const divider = document.createElement('hr');
-  container.appendChild(divider);
-
-  // 👇 дальше как было
   artists.forEach(name => {
     const count = paintings.filter(p => p.artist === name).length;
 
@@ -58,6 +53,16 @@ function createArtistButtons() {
 
 function showProducts(products) {
   const container = document.getElementById('catalog');
+
+  // 🔥 если ничего нет
+  if (products.length === 0) {
+    container.innerHTML = `
+      <div class="no-results">
+        No results found
+      </div>
+    `;
+    return;
+  }
 
   let html = '';
 
@@ -158,3 +163,23 @@ if (searchInput) {
     showProducts(filtered);
   });
 }
+
+function setGridActive(btn) {
+  document
+    .querySelectorAll('.catalog__grid-btns button')
+    .forEach(b => b.classList.remove('active'));
+
+  btn.classList.add('active');
+}
+
+grid1Btn.addEventListener('click', () => {
+  catalog.classList.remove('grid-2');
+  catalog.classList.add('grid-1');
+  setGridActive(grid1Btn);
+});
+
+grid2Btn.addEventListener('click', () => {
+  catalog.classList.remove('grid-1');
+  catalog.classList.add('grid-2');
+  setGridActive(grid2Btn);
+});

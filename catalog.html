@@ -50,31 +50,41 @@
         </a>
         <h1>Antique Collection</h1>
         <input type="text" id="searchInput" class="catalog__input" placeholder="Search..." />
-        <div class="filter">
-          <button class="filter-toggle" id="filterToggle">
-            Category
-            <svg class="filter-arrow" viewBox="0 0 24 24">
-              <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
-            </svg>
-          </button>
+        <div class="catalog__filter-wrap">
+          <div class="filter">
+            <button class="filter-toggle" id="filterToggle">
+              Category
+              <svg class="filter-arrow" viewBox="0 0 24 24">
+                <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
+              </svg>
+            </button>
 
-          <div class="filter-menu">
-            <button onclick="showAll(this)">All</button>
-            <div class="submenu">
-              <button id="paintingsBtn" class="paint__btn" v-cloak>
-                Paintings
-                <svg viewBox="0 0 24 24" class="arrow-right">
-                  <path
-                    d="M21,11H5.41l1.3-1.29A1,1,0,0,0,5.29,8.29l-3,3a1,1,0,0,0,0,1.42l3,3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42L5.41,13H21a1,1,0,0,0,0-2Z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </button>
-              <div class="submenu-content" id="paintingsSubmenu"></div>
+            <div class="filter-menu">
+              <button onclick="showAll(this)">All</button>
+              <div class="submenu">
+                <button id="paintingsBtn" class="paint__btn" v-cloak>
+                  Paintings
+                  <svg viewBox="0 0 24 24" class="arrow-right">
+                    <path
+                      d="M21,11H5.41l1.3-1.29A1,1,0,0,0,5.29,8.29l-3,3a1,1,0,0,0,0,1.42l3,3a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42L5.41,13H21a1,1,0,0,0,0-2Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </button>
+                <div class="submenu-content" id="paintingsSubmenu"></div>
+              </div>
+              <button onclick="filterCategory('furniture', this)">Furniture</button>
+              <button onclick="filterCategory('glass', this)">Ceramics & glass</button>
+              <button onclick="filterCategory('others', this)">Others</button>
             </div>
-            <button onclick="filterCategory('furniture', this)">Furniture</button>
-            <button onclick="filterCategory('glass', this)">Ceramics & glass</button>
-            <button onclick="filterCategory('others', this)">Others</button>
+          </div>
+          <div class="catalog__grid-btns">
+            <button id="grid1Btn">
+              <img src="imgs/grid1.svg" alt="1 column" />
+            </button>
+            <button id="grid2Btn">
+              <img src="imgs/grid2.svg" alt="2 columns" />
+            </button>
           </div>
         </div>
 
