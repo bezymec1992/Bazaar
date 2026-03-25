@@ -1,4 +1,7 @@
 const paintingsBtn = document.getElementById('paintingsBtn');
+let visibleCount = 10;
+let currentProducts = [];
+const loadMoreBtn = document.getElementById('loadMoreBtn');
 
 if (paintingsBtn) {
   paintingsBtn.addEventListener('click', e => {
@@ -12,8 +15,10 @@ let allProducts = [];
 
 async function initCatalog() {
   allProducts = await getProducts();
+  currentProducts = allProducts;
+
   createArtistButtons();
-  showProducts(allProducts);
+  renderProducts();
 }
 
 function createArtistButtons() {
@@ -51,23 +56,18 @@ function createArtistButtons() {
   });
 }
 
-function showProducts(products) {
+function renderProducts() {
   const container = document.getElementById('catalog');
+  const visibleProducts = currentProducts.slice(0, visibleCount);
+  container.innerHTML = generateProductsHTML(visibleProducts);
 
-  // 🔥 если ничего нет
-  if (products.length === 0) {
-    container.innerHTML = `
-      <div class="no-results">
-        No results found
-      </div>
-    `;
-    return;
-  }
+  updateLoadMoreButton();
+}
 
-  let html = '';
-
-  products.forEach(p => {
-    html += `
+function generateProductsHTML(products) {
+  return products
+    .map(
+      p => `
     <div class="card">
       <a href="product.html?id=${p.id}">
         <div class="img-wrap">
@@ -80,15 +80,45 @@ function showProducts(products) {
         </div>
       </a>
     </div>
-    `;
-  });
+  `
+    )
+    .join('');
+}
 
-  container.innerHTML = html;
+function updateProducts(products) {
+  currentProducts = products;
+  visibleCount = 10;
+  renderProducts();
+}
+
+function updateLoadMoreButton() {
+  if (!loadMoreBtn) return;
+
+  if (visibleCount < currentProducts.length) {
+    loadMoreBtn.style.display = 'block';
+    loadMoreBtn.textContent = 'Load more';
+    loadMoreBtn.disabled = false;
+  } else {
+    loadMoreBtn.style.display = 'block';
+    loadMoreBtn.textContent = 'No more items';
+    loadMoreBtn.disabled = true;
+  }
+}
+
+if (loadMoreBtn) {
+  loadMoreBtn.onclick = () => {
+    loadMoreBtn.textContent = 'Loading...';
+
+    setTimeout(() => {
+      visibleCount += 10;
+      renderProducts();
+    }, 300);
+  };
 }
 
 function filterCategory(category, btn) {
   const filtered = allProducts.filter(p => p.category === category);
-  showProducts(filtered);
+  updateProducts(filtered);
   setFilterLabel(btn.textContent);
   setActive(btn);
   closeAllFilters();
@@ -99,14 +129,14 @@ function filterArtist(name) {
     p => p.category === 'painting' && p.artist.toLowerCase() === name.toLowerCase()
   );
 
-  showProducts(filtered);
+  updateProducts(filtered);
   setFilterLabel(name);
 
   closeAllFilters();
 }
 
 function showAll(btn) {
-  showProducts(allProducts);
+  updateProducts(products);
   setFilterLabel(btn.textContent);
   setActive(btn);
   closeAllFilters();
@@ -160,7 +190,7 @@ if (searchInput) {
         (p.artist && p.artist.toLowerCase().includes(value))
     );
 
-    showProducts(filtered);
+    updateProducts(filtered);
   });
 }
 

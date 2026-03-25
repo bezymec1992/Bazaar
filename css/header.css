@@ -1,7 +1,5 @@
 .header {
   border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-  /* transform: translateY(-100%); */
-  /* animation: headerDrop 0.8s ease forwards; */
   position: relative;
 }
 
@@ -160,8 +158,21 @@
   }
 }
 
-/* @keyframes headerDrop {
-  to {
-    transform: translateY(0);
-  }
-} */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+
+  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.4);
+
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s;
+
+  z-index: 800;
+}
+
+.menu-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}

@@ -94,6 +94,7 @@
 .form__container {
   display: flex;
   justify-content: space-between;
+  gap: 30px;
 }
 
 .form::before {
@@ -115,7 +116,6 @@
   }
   .form__container {
     flex-direction: column;
-    gap: 30px;
   }
 
   .contact-form {

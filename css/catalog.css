@@ -140,6 +140,7 @@ button:hover {
 
 #catalog.grid-2 {
   grid-template-columns: repeat(2, 1fr);
+  grid-gap: 10px;
 }
 .catalog__grid-btns button.active {
   outline: 1px solid #d4af37;
@@ -318,6 +319,40 @@ button:hover {
   color: #888;
 }
 
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin: 60px 0;
+}
+
+#loadMoreBtn {
+  padding: 14px 32px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+
+  border: 1px solid #d4af37;
+  background-color: #1a1a1a;
+  color: #d4af37;
+
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* hover эффект */
+#loadMoreBtn:hover {
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
+}
+
+#loadMoreBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#loadMoreBtn:disabled:hover {
+  box-shadow: unset;
+}
+
 @media (max-width: 768px) {
   .catalog__main {
     margin-top: 20px;
@@ -350,6 +385,12 @@ button:hover {
   }
   .catalog__grid-btns {
     display: flex;
+  }
+  .load-more-container {
+    margin: 30px 0;
+  }
+  #loadMoreBtn {
+    width: 100%;
   }
 }
 

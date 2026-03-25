@@ -27,8 +27,10 @@ const lightboxImg = document.getElementById('lightbox-img');
 image.onclick = () => {
   lightbox.classList.add('show');
   lightboxImg.src = image.src;
+  document.body.style.overflow = 'hidden';
 };
 
 lightbox.onclick = () => {
   lightbox.classList.remove('show');
+  document.body.style.overflow = '';
 };
