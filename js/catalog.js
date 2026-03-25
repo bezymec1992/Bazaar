@@ -136,7 +136,7 @@ function filterArtist(name) {
 }
 
 function showAll(btn) {
-  updateProducts(products);
+  updateProducts(allProducts);
   setFilterLabel(btn.textContent);
   setActive(btn);
   closeAllFilters();
