@@ -1,14 +1,39 @@
+(function () {
+  emailjs.init('pkMEalN8-JDvhkW-4');
+})();
+
 const form = document.getElementById('contactForm');
 const toast = document.getElementById('toast');
+const button = form.querySelector('button');
 
-form.addEventListener('submit', e => {
+form.addEventListener('submit', function (e) {
   e.preventDefault();
 
-  toast.classList.add('toast--show');
+  const params = {
+    email: document.getElementById('email').value,
+    message: document.getElementById('message').value,
+  };
 
-  setTimeout(() => {
-    toast.classList.remove('toast--show');
-  }, 2000);
+  button.disabled = true;
+  button.textContent = 'Sending...';
 
-  form.reset();
+  emailjs
+    .send('service_sywru66', 'template_mozbimv', params)
+    .then(() => {
+      toast.classList.add('toast--show');
+
+      setTimeout(() => {
+        toast.classList.remove('toast--show');
+      }, 2000);
+
+      form.reset();
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Failed to send. Please try again later.');
+    })
+    .finally(() => {
+      button.disabled = false;
+      button.textContent = 'Send';
+    });
 });
