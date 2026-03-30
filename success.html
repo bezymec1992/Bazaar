@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Successful</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="icon" type="image/png" href="imgs/logo.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="imgs/logo.png" />
+
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+
+    <style>
+      .success {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0 15px;
+      }
+
+      .success__box {
+        max-width: 500px;
+      }
+
+      .success__icon {
+        font-size: 60px;
+        margin-bottom: 10px;
+      }
+
+      .success__title {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .success__text {
+        color: #c9a227;
+        margin-bottom: 50px;
+        opacity: 0.6;
+      }
+
+      .success__btn {
+        padding: 12px 24px;
+        background: #c9a227;
+        color: black;
+        transition: 0.3s;
+        border-radius: 8px;
+        font-weight: bold;
+      }
+      .success__btn:hover {
+        background: #ffe283;
+        box-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
+      }
+    </style>
+  </head>
+
+  <body>
+    <section class="success">
+      <div class="success__box">
+        <div class="success__icon">
+          <img src="imgs/logo.png" width="70" height="50" alt="logo" />
+        </div>
+        <h1 class="success__title">Payment Successful</h1>
+        <p class="success__text">
+          Thank you for your purchase. We will contact you shortly regarding delivery.
+        </p>
+
+        <a href="index.html" class="success__btn">Back to Home</a>
+      </div>
+    </section>
+  </body>
+</html>
