@@ -34,3 +34,21 @@ lightbox.onclick = () => {
   lightbox.classList.remove('show');
   document.body.style.overflow = '';
 };
+
+document.getElementById('buyBtn').addEventListener('click', async () => {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+
+  const res = await fetch('http://localhost:3000/create-checkout-session', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ productId: id }),
+  });
+
+  const data = await res.json();
+
+  // редирект на Stripe
+  window.location.href = data.url;
+});

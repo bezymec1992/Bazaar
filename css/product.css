@@ -15,7 +15,7 @@
   width: 100%;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: zoom-in;
 }
 
@@ -54,16 +54,17 @@
 .product__btn {
   display: inline-block;
   padding: 14px 28px;
-  border: 1px solid #d4af37;
-  color: #d4af37;
   text-decoration: none;
   border-radius: 6px;
   transition: 0.3s;
+  color: black;
+  background-color: #d4af37;
+  font-weight: bold;
 }
 
 .product__btn:hover {
-  background: #d4af37;
-  color: #0e4618;
+  background: #ffe283;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.8);
 }
 
 .lightbox {
@@ -131,10 +132,25 @@
 
   .arrow-left {
     font-size: 16px;
-    margin-bottom: 10px;
     gap: 5px;
   }
   .arrow-left .arrow-icon {
     height: 20px;
+  }
+
+  .product__info h1 {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+
+  .product__price {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .product__btn {
+    width: 100%;
+    text-align: center;
+    text-transform: uppercase;
   }
 }
