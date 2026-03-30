@@ -39,7 +39,7 @@ document.getElementById('buyBtn').addEventListener('click', async () => {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
 
-  const res = await fetch('http://localhost:3000/create-checkout-session', {
+  const res = await fetch('https://bazaar-hkq1.onrender.com/create-checkout-session', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
