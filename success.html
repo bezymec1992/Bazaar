@@ -66,12 +66,28 @@
           <img src="imgs/logo.png" width="70" height="50" alt="logo" />
         </div>
         <h1 class="success__title">Payment Successful</h1>
-        <p class="success__text">
-          Thank you for your purchase. We will contact you shortly regarding delivery.
-        </p>
-
+        <p class="success__text">Thank you for your purchase.</p>
+        <div id="orderInfo"></div>
         <a href="index.html" class="success__btn">Back to Home</a>
       </div>
     </section>
+
+    <script>
+      const container = document.getElementById('orderInfo');
+      const product = JSON.parse(localStorage.getItem('lastPurchased'));
+
+      if (product) {
+        container.innerHTML = `
+      <div style="margin-top:20px;">
+        <img src="${product.image}" width="200" style="border-radius:8px;" />
+        <h3>${product.title}</h3>
+        <p><strong>Price:</strong> ${product.price} €</p>
+        <p><strong>ID:</strong> ${product.id}</p>
+      </div>
+    `;
+      } else {
+        container.innerHTML = `<p>No order data found</p>`;
+      }
+    </script>
   </body>
 </html>

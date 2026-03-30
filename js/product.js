@@ -35,26 +35,34 @@ lightbox.onclick = () => {
   document.body.style.overflow = '';
 };
 
-document.getElementById('buyBtn').addEventListener('click', async () => {
+const btn = document.getElementById('buyBtn');
+
+btn.addEventListener('click', async () => {
   try {
+    btn.textContent = 'Loading...';
+    btn.disabled = true;
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
 
-    const res = await fetch('https://bazaar-hkq1.onrender.com/create-checkout-session', {
+    const products = JSON.parse(localStorage.getItem('products'));
+    const product = products.find(p => p.id == id);
+
+    localStorage.setItem('lastPurchased', JSON.stringify(product));
+
+    const res = await fetch('https://bazaar-lake-one.vercel.app/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId: id }),
     });
 
-    if (!res.ok) {
-      throw new Error('Server error');
-    }
-
     const data = await res.json();
 
     window.location.href = data.url;
   } catch (err) {
-    alert('Something went wrong. Try again.');
+    btn.textContent = 'Buy';
+    btn.disabled = false;
+    alert('Something went wrong');
     console.error(err);
   }
 });
