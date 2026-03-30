@@ -36,19 +36,25 @@ lightbox.onclick = () => {
 };
 
 document.getElementById('buyBtn').addEventListener('click', async () => {
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
 
-  const res = await fetch('https://bazaar-hkq1.onrender.com/create-checkout-session', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ productId: id }),
-  });
+    const res = await fetch('https://bazaar-hkq1.onrender.com/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId: id }),
+    });
 
-  const data = await res.json();
+    if (!res.ok) {
+      throw new Error('Server error');
+    }
 
-  // редирект на Stripe
-  window.location.href = data.url;
+    const data = await res.json();
+
+    window.location.href = data.url;
+  } catch (err) {
+    alert('Something went wrong. Try again.');
+    console.error(err);
+  }
 });
