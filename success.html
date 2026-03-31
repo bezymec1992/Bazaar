@@ -51,6 +51,8 @@
         transition: 0.3s;
         border-radius: 8px;
         font-weight: bold;
+        margin-top: 20px;
+        display: block;
       }
       .success__btn:hover {
         background: #ffe283;
@@ -76,7 +78,7 @@
       const container = document.getElementById('orderInfo');
       const product = JSON.parse(localStorage.getItem('lastPurchased'));
 
-      if (product) {
+      if (product && product.image && product.title) {
         container.innerHTML = `
       <div style="margin-top:20px;">
         <img src="${product.image}" width="200" style="border-radius:8px;" />
@@ -86,7 +88,9 @@
       </div>
     `;
       } else {
-        container.innerHTML = `<p>No order data found</p>`;
+        container.innerHTML = `
+      <p>Order received successfully.</p>
+    `;
       }
     </script>
   </body>
