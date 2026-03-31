@@ -33,6 +33,7 @@ export default async function handler(req, res) {
           currency: 'eur',
           product_data: {
             name: product.title,
+            images: [product.image],
           },
           unit_amount: Math.round(Number(product.price) * 100),
         },
