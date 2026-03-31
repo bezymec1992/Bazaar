@@ -56,12 +56,7 @@ btn.addEventListener('click', async () => {
       body: JSON.stringify({ productId: id }),
     });
 
-    // const data = await res.json();
-
-    const text = await res.text();
-    console.log(text);
-
-    const data = JSON.parse(text);
+    const data = await res.json();
 
     window.location.href = data.url;
   } catch (err) {
