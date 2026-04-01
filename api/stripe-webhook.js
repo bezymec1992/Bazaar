@@ -38,27 +38,16 @@ export default async function handler(req, res) {
     console.log('Payment successful:', session.id);
 
     try {
-      console.log('Sending email...');
-      const emailRes = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          service_id: 'service_sywru66',
-          template_id: 'template_grw3wfq',
-          user_id: 'pkMEalN8-JDvhkW-4',
-          template_params: {
-            product_title: 'New Order',
-            product_price: session.amount_total / 100,
-            product_id: session.id,
-            product_image: '',
-          },
-        }),
+      const email = await resend.emails.send({
+        from: 'Bazaar <onboarding@resend.dev>',
+        to: 'bbezzymecc@gmail.com', // ← замени на свой
+        subject: 'Test email',
+        html: '<h1>Resend работает ✅</h1>',
       });
 
-      console.log('Email status:', emailRes.status);
-      console.log('Email request sent');
+      console.log('Email sent:', email);
     } catch (err) {
-      console.error('Email error:', err);
+      console.error('Resend error:', err);
     }
   }
 
