@@ -34,6 +34,7 @@ export default async function handler(req, res) {
       console.log('Payment successful:', session.id);
 
       try {
+        console.log('Sending email...');
         await fetch('https://api.emailjs.com/api/v1.0/email/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -49,6 +50,7 @@ export default async function handler(req, res) {
             },
           }),
         });
+        console.log('Email request sent');
       } catch (err) {
         console.error('Email error:', err);
       }
