@@ -86,6 +86,7 @@ export default async function handler(req, res) {
         productId: product.id,
         title: product.title,
         price: product.price,
+        image: product.image,
       },
       line_items: [
         {
