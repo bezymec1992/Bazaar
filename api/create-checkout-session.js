@@ -1,6 +1,7 @@
 let cachedProducts = null;
 let lastFetchTime = 0;
-const CACHE_TTL = 1000 * 60 * 5; // 5 минут
+let lastRequestTime = 0;
+const CACHE_TTL = 1000 * 60 * 60; // 1 час
 
 async function getProducts() {
   try {
@@ -34,6 +35,12 @@ async function getProducts() {
 }
 
 export default async function handler(req, res) {
+  if (Date.now() - lastRequestTime < 1000) {
+    return res.status(429).json({ error: 'Too many requests' });
+  }
+
+  lastRequestTime = Date.now();
+
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -49,13 +56,25 @@ export default async function handler(req, res) {
 
   const { productId } = req.body;
 
+  if (!productId || typeof productId !== 'string') {
+    return res.status(400).json({ error: 'Invalid productId' });
+  }
+
   // fetch товаров (с кэшем)
   const products = await getProducts();
 
-  const product = products.find(p => p.id == productId);
+  const product = products.find(p => String(p.id) === String(productId));
 
   if (!product) {
     return res.status(404).json({ error: 'Product not found' });
+  }
+
+  if (!product.price || isNaN(Number(product.price))) {
+    return res.status(400).json({ error: 'Invalid product price' });
+  }
+
+  if (!product.title || !product.image) {
+    return res.status(400).json({ error: 'Invalid product data' });
   }
 
   const session = await stripe.checkout.sessions.create({
