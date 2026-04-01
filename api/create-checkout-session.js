@@ -1,7 +1,9 @@
+import Stripe from 'stripe';
 let cachedProducts = null;
 let lastFetchTime = 0;
-let lastRequestTime = 0;
 const CACHE_TTL = 1000 * 60 * 60; // 1 час
+
+const stripe = new Stripe(process.env.STRIPE_SECRET);
 
 async function getProducts() {
   try {
@@ -36,12 +38,6 @@ async function getProducts() {
 
 export default async function handler(req, res) {
   try {
-    // if (Date.now() - lastRequestTime < 1000) {
-    //   return res.status(429).json({ error: 'Too many requests' });
-    // }
-
-    // lastRequestTime = Date.now();
-
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -52,8 +48,6 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
-
-    const stripe = require('stripe')(process.env.STRIPE_SECRET);
 
     const { productId } = req.body;
 
@@ -104,29 +98,6 @@ export default async function handler(req, res) {
       success_url: 'https://bezymec1992.github.io/Bazaar/success.html',
       cancel_url: 'https://bezymec1992.github.io/Bazaar/product.html?id=' + productId,
     });
-
-    try {
-      await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          service_id: 'service_sywru66',
-          template_id: 'template_grw3wfq',
-          user_id: 'pkMEalN8-JDvhkW-4',
-          template_params: {
-            product_title: product.title,
-            product_price: product.price,
-            product_id: product.id,
-            product_image: product.image,
-          },
-        }),
-      });
-    } catch (err) {
-      console.error('Email error:', err);
-      // ❗ НИЧЕГО НЕ ВОЗВРАЩАЕМ
-    }
 
     res.status(200).json({ url: session.url });
   } catch (err) {
