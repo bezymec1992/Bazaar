@@ -28,9 +28,31 @@ export default async function handler(req, res) {
 
   // ✅ УСПЕШНАЯ ОПЛАТА
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
 
-    console.log('Payment successful:', session.id);
+      console.log('Payment successful:', session.id);
+
+      try {
+        await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id: 'service_sywru66',
+            template_id: 'template_grw3wfq',
+            user_id: 'pkMEalN8-JDvhkW-4',
+            template_params: {
+              product_title: 'New Order',
+              product_price: session.amount_total / 100,
+              product_id: session.id,
+              product_image: '',
+            },
+          }),
+        });
+      } catch (err) {
+        console.error('Email error:', err);
+      }
+    }
   }
 
   res.status(200).json({ received: true });
