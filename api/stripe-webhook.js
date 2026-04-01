@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-
+    const { metadata } = session;
     console.log('Payment successful:', session.id);
 
     try {
@@ -42,7 +42,12 @@ export default async function handler(req, res) {
         from: 'Bazaar <onboarding@resend.dev>',
         to: 'bbezzymecc@gmail.com', // ← замени на свой
         subject: 'Test email',
-        html: '<h1>Resend работает ✅</h1>',
+        html: `
+  <h2>New Order 🎉</h2>
+  <p><strong>Product:</strong> ${metadata.title}</p>
+  <p><strong>Price:</strong> €${metadata.price}</p>
+  <p><strong>ID:</strong> ${metadata.productId}</p>
+`,
       });
 
       console.log('Email sent:', email);
