@@ -9,11 +9,13 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  let buf = '';
+  const chunks = [];
 
   for await (const chunk of req) {
-    buf += chunk;
+    chunks.push(chunk);
   }
+
+  const buf = Buffer.concat(chunks);
 
   const sig = req.headers['stripe-signature'];
 
@@ -27,33 +29,34 @@ export default async function handler(req, res) {
   }
 
   // ✅ УСПЕШНАЯ ОПЛАТА
+
   if (event.type === 'checkout.session.completed') {
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object;
+    const session = event.data.object;
 
-      console.log('Payment successful:', session.id);
+    console.log('Payment successful:', session.id);
 
-      try {
-        console.log('Sending email...');
-        await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            service_id: 'service_sywru66',
-            template_id: 'template_grw3wfq',
-            user_id: 'pkMEalN8-JDvhkW-4',
-            template_params: {
-              product_title: 'New Order',
-              product_price: session.amount_total / 100,
-              product_id: session.id,
-              product_image: '',
-            },
-          }),
-        });
-        console.log('Email request sent');
-      } catch (err) {
-        console.error('Email error:', err);
-      }
+    try {
+      console.log('Sending email...');
+      const emailRes = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: 'service_sywru66',
+          template_id: 'template_grw3wfq',
+          user_id: 'pkMEalN8-JDvhkW-4',
+          template_params: {
+            product_title: 'New Order',
+            product_price: session.amount_total / 100,
+            product_id: session.id,
+            product_image: '',
+          },
+        }),
+      });
+
+      console.log('Email status:', emailRes.status);
+      console.log('Email request sent');
+    } catch (err) {
+      console.error('Email error:', err);
     }
   }
 
