@@ -1,3 +1,38 @@
+let cachedProducts = null;
+let lastFetchTime = 0;
+const CACHE_TTL = 1000 * 60 * 5; // 5 минут
+
+async function getProducts() {
+  try {
+    const now = Date.now();
+
+    // если кэш есть и не устарел
+    if (cachedProducts && now - lastFetchTime < CACHE_TTL) {
+      return cachedProducts;
+    }
+
+    const response = await fetch('https://sheetdb.io/api/v1/jqeo93r4g20ic');
+
+    if (!response.ok) {
+      throw new Error('SheetDB error');
+    }
+
+    const products = await response.json();
+
+    cachedProducts = products;
+    lastFetchTime = now;
+
+    return products;
+  } catch (err) {
+    console.error('Fetch products error:', err);
+
+    // fallback — если есть старый кэш
+    if (cachedProducts) return cachedProducts;
+
+    throw err;
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST');
@@ -15,8 +50,7 @@ export default async function handler(req, res) {
   const { productId } = req.body;
 
   // fetch товаров (с кэшем)
-  const response = await fetch('https://sheetdb.io/api/v1/jqeo93r4g20ic');
-  const products = await response.json();
+  const products = await getProducts();
 
   const product = products.find(p => p.id == productId);
 
