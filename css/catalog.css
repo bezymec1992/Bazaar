@@ -343,6 +343,7 @@ button:hover {
 
 .card--sold {
   position: relative;
+  pointer-events: none;
 }
 
 .card--sold img {
