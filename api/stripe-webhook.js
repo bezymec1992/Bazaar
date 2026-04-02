@@ -37,10 +37,22 @@ export default async function handler(req, res) {
     const { metadata } = session;
     console.log('Payment successful:', session.id);
 
+    await fetch('https://sheetdb.io/api/v1/jqeo93r4g20ic/id/' + metadata.productId, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: {
+          sold: 'true',
+        },
+      }),
+    });
+
     try {
       const email = await resend.emails.send({
         from: 'Bazaar <onboarding@resend.dev>',
-        to: 'bbezzymecc@gmail.com', // ← замени на свой
+        to: 'bbezzymecc@gmail.com', // ← на какой имейл летит почта
         subject: 'Test email',
         html: `
 <div style="margin: 0; padding: 0; color: #d4af37; font-family: Arial, sans-serif;">

@@ -64,6 +64,10 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
+    if (String(product.sold).toLowerCase() === 'true') {
+      return res.status(400).json({ error: 'Product already sold' });
+    }
+
     if (!product.price || isNaN(Number(product.price))) {
       return res.status(400).json({ error: 'Invalid product price' });
     }

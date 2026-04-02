@@ -1,3 +1,5 @@
+const btn = document.getElementById('buyBtn');
+
 async function loadProduct() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
@@ -16,6 +18,11 @@ async function loadProduct() {
   document.getElementById('price').textContent = product.price + ' €';
   document.getElementById('image').src = product.image;
   document.getElementById('desc').textContent = product.description;
+
+  if (String(product.sold).toLowerCase() === 'true') {
+    btn.textContent = 'Sold';
+    btn.disabled = true;
+  }
 }
 
 loadProduct();
@@ -34,8 +41,6 @@ lightbox.onclick = () => {
   lightbox.classList.remove('show');
   document.body.style.overflow = '';
 };
-
-const btn = document.getElementById('buyBtn');
 
 btn.addEventListener('click', async () => {
   try {
