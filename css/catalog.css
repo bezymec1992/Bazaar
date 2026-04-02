@@ -367,6 +367,22 @@ button:hover {
   text-transform: uppercase;
 }
 
+.card--sold::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: inherit;
+}
+
+.card--sold .sold-badge {
+  z-index: 2;
+}
+
+.card--sold::after {
+  z-index: 1;
+}
+
 @media (min-width: 768px) {
   .card:hover {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
