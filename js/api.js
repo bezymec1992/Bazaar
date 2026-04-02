@@ -1,7 +1,7 @@
 const API_URL = 'https://sheetdb.io/api/v1/jqeo93r4g20ic';
 
 // 👉 меняешь ЭТУ строку когда добавляешь товары
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 
 const CACHE_TIME = 1000 * 60 * 10; // 10 минут
 
