@@ -6,10 +6,7 @@ const CACHE_TTL = 1000 * 60 * 60; // 1 час
 
 const stripe = new Stripe(process.env.STRIPE_SECRET);
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY // ❗ НЕ public key
-);
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 async function getProducts() {
   const { data, error } = await supabase.from('products').select('*');
