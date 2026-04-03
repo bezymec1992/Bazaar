@@ -3,16 +3,12 @@ const SUPABASE_KEY = 'sb_publishable_YebYXtFgqG3G0sGJH8VAUA_G-ZrlSL-';
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const CACHE_VERSION = 'v2';
-
-const CACHE_TIME = 1000 * 60 * 20; // 20 минут
-
 async function getProducts() {
   const { data, error } = await db.from('products').select('*');
 
   if (error) {
     console.error('Supabase error:', error);
-    return [];
+    throw new Error('Failed to fetch products');
   }
 
   return data;

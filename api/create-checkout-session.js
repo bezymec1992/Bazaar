@@ -1,23 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
-let cachedProducts = null;
-let lastFetchTime = 0;
-const CACHE_TTL = 1000 * 60 * 60; // 1 час
 
 const stripe = new Stripe(process.env.STRIPE_SECRET);
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-
-async function getProducts() {
-  const { data, error } = await supabase.from('products').select('*');
-
-  if (error) {
-    console.error('Supabase error:', error);
-    throw new Error('Failed to fetch products');
-  }
-
-  return data;
-}
 
 export default async function handler(req, res) {
   try {
@@ -34,20 +20,24 @@ export default async function handler(req, res) {
 
     const { productId } = req.body;
 
-    if (!productId || typeof productId !== 'string') {
+    const id = Number(productId);
+
+    if (isNaN(id)) {
       return res.status(400).json({ error: 'Invalid productId' });
     }
 
     // fetch товаров (с кэшем)
-    const products = await getProducts();
+    const { data: product, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    const product = products.find(p => String(p.id) === String(productId));
-
-    if (!product) {
+    if (error || !product) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    if (String(product.sold).toLowerCase() === 'true') {
+    if (product.sold === true) {
       return res.status(400).json({ error: 'Product already sold' });
     }
 
@@ -60,14 +50,10 @@ export default async function handler(req, res) {
     }
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
       mode: 'payment',
 
       metadata: {
-        productId: product.id,
-        title: product.title,
-        price: product.price,
-        image: product.image,
+        productId: String(product.id),
       },
       line_items: [
         {
