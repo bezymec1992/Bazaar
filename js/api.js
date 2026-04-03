@@ -1,9 +1,7 @@
 const SUPABASE_URL = 'https://oicwhdcmfkckprrnzctn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_YebYXtFgqG3G0sGJH8VAUA_G-ZrlSL-';
 
-const { createClient } = supabase;
-
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const CACHE_VERSION = 'v2';
 
