@@ -1,4 +1,9 @@
-const API_URL = 'https://sheetdb.io/api/v1/jqeo93r4g20ic';
+const SUPABASE_URL = 'https://oicwhdcmfkckprrnzctn.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_YebYXtFgqG3G0sGJH8VAUA_G-ZrlSL-';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// const API_URL = 'https://sheetdb.io/api/v1/jqeo93r4g20ic';
 
 // 👉 меняешь ЭТУ строку когда добавляешь товары
 const CACHE_VERSION = 'v2';
@@ -6,21 +11,12 @@ const CACHE_VERSION = 'v2';
 const CACHE_TIME = 1000 * 60 * 20; // 20 минут
 
 async function getProducts() {
-  const cached = localStorage.getItem('products');
-  const timestamp = localStorage.getItem('products_timestamp');
+  const { data, error } = await supabase.from('products').select('*');
 
-  // 👉 если есть кэш и он свежий — используем его
-  if (cached && timestamp && Date.now() - timestamp < CACHE_TIME) {
-    return JSON.parse(cached);
+  if (error) {
+    console.error('Supabase error:', error);
+    return [];
   }
-
-  // 👉 иначе — делаем запрос
-  const res = await fetch(API_URL);
-  const data = await res.json();
-
-  // 👉 сохраняем
-  localStorage.setItem('products', JSON.stringify(data));
-  localStorage.setItem('products_timestamp', Date.now());
 
   return data;
 }
