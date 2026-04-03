@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/bezymec1992/Bazaar#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
     "resend": "^6.10.0",
     "stripe": "^21.0.1"
   }
