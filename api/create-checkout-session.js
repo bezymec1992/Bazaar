@@ -54,6 +54,9 @@ export default async function handler(req, res) {
 
       metadata: {
         productId: String(product.id),
+        title: product.title,
+        price: product.price,
+        image: product.image,
       },
       line_items: [
         {

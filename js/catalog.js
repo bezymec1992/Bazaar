@@ -14,7 +14,11 @@ if (paintingsBtn) {
 let allProducts = [];
 
 async function initCatalog() {
-  allProducts = await getProducts();
+  try {
+    allProducts = await getProducts();
+  } catch (e) {
+    showError('Failed to load products');
+  }
   currentProducts = allProducts;
 
   createArtistButtons();
