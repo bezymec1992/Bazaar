@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
 let cachedProducts = null;
 let lastFetchTime = 0;
@@ -5,35 +6,20 @@ const CACHE_TTL = 1000 * 60 * 60; // 1 час
 
 const stripe = new Stripe(process.env.STRIPE_SECRET);
 
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY // ❗ НЕ public key
+);
+
 async function getProducts() {
-  try {
-    const now = Date.now();
+  const { data, error } = await supabase.from('products').select('*');
 
-    // если кэш есть и не устарел
-    if (cachedProducts && now - lastFetchTime < CACHE_TTL) {
-      return cachedProducts;
-    }
-
-    const response = await fetch('https://sheetdb.io/api/v1/jqeo93r4g20ic');
-
-    if (!response.ok) {
-      throw new Error('SheetDB error');
-    }
-
-    const products = await response.json();
-
-    cachedProducts = products;
-    lastFetchTime = now;
-
-    return products;
-  } catch (err) {
-    console.error('Fetch products error:', err);
-
-    // fallback — если есть старый кэш
-    if (cachedProducts) return cachedProducts;
-
-    throw err;
+  if (error) {
+    console.error('Supabase error:', error);
+    throw new Error('Failed to fetch products');
   }
+
+  return data;
 }
 
 export default async function handler(req, res) {

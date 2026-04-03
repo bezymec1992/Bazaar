@@ -1,6 +1,9 @@
 import Stripe from 'stripe';
 import { Resend } from 'resend';
 
+import { createClient } from '@supabase/supabase-js';
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+
 const stripe = new Stripe(process.env.STRIPE_SECRET);
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -37,17 +40,11 @@ export default async function handler(req, res) {
     const { metadata } = session;
     console.log('Payment successful:', session.id);
 
-    await fetch('https://sheetdb.io/api/v1/jqeo93r4g20ic/id/' + metadata.productId, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        data: {
-          sold: 'true',
-        },
-      }),
-    });
+    await supabase
+      .from('products')
+      .update({ sold: true })
+      .eq('id', metadata.productId)
+      .eq('sold', false);
 
     try {
       const email = await resend.emails.send({
