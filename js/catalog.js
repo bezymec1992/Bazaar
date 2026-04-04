@@ -17,14 +17,17 @@ async function initCatalog() {
   try {
     renderSkeleton();
 
+    await new Promise(resolve => setTimeout(resolve, 200));
+
     allProducts = await getProducts();
+    currentProducts = allProducts;
+
+    createArtistButtons();
+    renderProducts();
   } catch (e) {
+    console.error(e);
     showError('Failed to load products');
   }
-  currentProducts = allProducts;
-
-  createArtistButtons();
-  renderProducts();
 }
 
 function renderSkeleton(count = 6) {

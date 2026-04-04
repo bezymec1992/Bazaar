@@ -16,7 +16,13 @@ async function getProducts() {
     const isFresh = Date.now() - Number(cachedTime) < CACHE_LIFETIME;
 
     if (isFresh) {
-      return JSON.parse(cached);
+      try {
+        return JSON.parse(cached);
+      } catch (e) {
+        console.error('Cache parse error:', e);
+        localStorage.removeItem(CACHE_KEY);
+        localStorage.removeItem(CACHE_TIME_KEY);
+      }
     }
   }
 
