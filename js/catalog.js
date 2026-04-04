@@ -15,9 +15,23 @@ let allProducts = [];
 
 async function initCatalog() {
   try {
-    renderSkeleton();
+    const CACHE_KEY = 'products';
+    const CACHE_TIME_KEY = 'products_timestamp';
+    const CACHE_LIFETIME = 1000 * 60 * 5;
 
-    await new Promise(resolve => setTimeout(resolve, 200));
+    const cached = localStorage.getItem(CACHE_KEY);
+    const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+
+    let isFresh = false;
+
+    if (cached && cachedTime) {
+      isFresh = Date.now() - Number(cachedTime) < CACHE_LIFETIME;
+    }
+
+    // 👇 показываем skeleton ТОЛЬКО если нет кэша
+    if (!isFresh) {
+      renderSkeleton();
+    }
 
     allProducts = await getProducts();
     currentProducts = allProducts;

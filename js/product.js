@@ -6,7 +6,6 @@ async function loadProduct() {
   const id = params.get('id');
 
   const product = await getProductById(Number(id));
-  initCatalog;
 
   if (!product) return;
 

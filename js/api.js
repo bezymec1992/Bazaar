@@ -26,8 +26,7 @@ async function getProducts() {
     }
   }
 
-  // ❌ иначе идём в Supabase
-  const { data, error } = await db.from('products').select('*');
+  const { data, error } = await db.from('products').select('*').order('id', { ascending: false });
 
   if (error) {
     console.error('Supabase error:', error);
