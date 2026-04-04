@@ -11,8 +11,14 @@ async function loadProduct() {
 
   document.getElementById('title').textContent = product.title;
   document.getElementById('price').textContent = product.price + ' €';
-  document.getElementById('image').src = product.image;
   document.getElementById('desc').textContent = product.description;
+
+  const img = document.getElementById('image');
+  img.style.opacity = 0; // скрываем
+  img.onload = () => {
+    img.style.opacity = 1; // плавно показываем
+  };
+  img.src = product.image;
 
   if (product.sold === true) {
     btn.textContent = 'Sold';
