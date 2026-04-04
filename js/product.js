@@ -47,8 +47,7 @@ btn.addEventListener('click', async () => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
 
-    const products = await getProducts();
-    const product = products.find(p => p.id === Number(id));
+    const product = await getProductById(Number(id));
 
     localStorage.setItem('lastPurchased', JSON.stringify(product));
 
