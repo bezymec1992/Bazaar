@@ -15,6 +15,8 @@ let allProducts = [];
 
 async function initCatalog() {
   try {
+    renderSkeleton();
+
     allProducts = await getProducts();
   } catch (e) {
     showError('Failed to load products');
@@ -23,6 +25,25 @@ async function initCatalog() {
 
   createArtistButtons();
   renderProducts();
+}
+
+function renderSkeleton(count = 6) {
+  const container = document.getElementById('catalog');
+
+  container.innerHTML = Array(count)
+    .fill(0)
+    .map(
+      () => `
+      <div class="card skeleton">
+        <div class="img-wrap skeleton-box"></div>
+        <div class="info-wrap">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      </div>
+    `
+    )
+    .join('');
 }
 
 function createArtistButtons() {
@@ -222,3 +243,8 @@ grid2Btn.addEventListener('click', () => {
   catalog.classList.add('grid-2');
   setGridActive(grid2Btn);
 });
+
+function showError(msg) {
+  const container = document.getElementById('catalog');
+  container.innerHTML = `<p style="color:red">${msg}</p>`;
+}
