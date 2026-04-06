@@ -1,6 +1,6 @@
 const API_URL = 'https://bazaar-lake-one.vercel.app';
 const btn = document.getElementById('buyBtn');
-
+const DEFAULT_BTN_TEXT = btn.textContent;
 async function loadProduct() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
@@ -51,27 +51,22 @@ btn.addEventListener('click', async () => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
 
-    const product = await getProductById(Number(id));
-
-    localStorage.setItem('lastPurchased', JSON.stringify(product));
-
     const res = await fetch(API_URL + '/api/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId: id }),
     });
 
-    if (!res.ok) {
-      throw new Error('Checkout failed');
-    }
+    const data = await res.json(); // 🔥 сначала читаем ответ
 
-    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Checkout failed'); // 🔥 используем текст с бэка
+    }
 
     window.location.href = data.url;
   } catch (err) {
-    btn.textContent = 'Buy';
+    btn.textContent = DEFAULT_BTN_TEXT;
     btn.disabled = false;
-    alert('Something went wrong');
-    console.error(err);
+    alert(err.message);
   }
 });

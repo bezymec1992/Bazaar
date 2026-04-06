@@ -40,12 +40,24 @@ export default async function handler(req, res) {
     const { metadata } = session;
     console.log('Payment successful:', session.id);
 
-    await supabase
+    const { data, error } = await supabase
       .from('products')
       .update({ sold: true })
       .eq('id', metadata.productId)
-      .eq('sold', false);
+      .eq('sold', false)
+      .select();
 
+    if (error) {
+      console.error('DB error:', error);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      console.log('Product already sold, skipping...');
+      return; // 🔥 НЕ отправляем email
+    }
+
+    console.log('Order processed:', metadata.productId);
     try {
       const email = await resend.emails.send({
         from: 'Bazaar <onboarding@resend.dev>',
