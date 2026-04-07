@@ -14,9 +14,8 @@ async function loadProduct() {
   document.getElementById('desc').textContent = product.description;
 
   const img = document.getElementById('image');
-  img.style.opacity = 0; // скрываем
   img.onload = () => {
-    img.style.opacity = 1; // плавно показываем
+    img.classList.add('loaded');
   };
   img.src = product.image;
 
@@ -76,19 +75,29 @@ const deliveryBtn = document.getElementById('deliveryBtn');
 const modal = document.getElementById('deliveryModal');
 const modalClose = document.getElementById('modalClose');
 
-deliveryBtn.onclick = () => {
-  modal.classList.add('show');
-  document.body.style.overflow = 'hidden';
-};
-
-modalClose.onclick = () => {
+const closeModal = () => {
   modal.classList.remove('show');
   document.body.style.overflow = '';
+  document.body.style.paddingRight = '';
 };
+
+deliveryBtn.onclick = () => {
+  const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+  document.body.style.paddingRight = scrollBarWidth + 'px';
+  document.body.style.overflow = 'hidden';
+
+  modal.classList.add('show');
+};
+
+modalClose.onclick = closeModal;
 
 modal.onclick = e => {
   if (e.target === modal) {
-    modal.classList.remove('show');
-    document.body.style.overflow = '';
+    closeModal();
   }
 };
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
