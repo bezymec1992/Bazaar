@@ -81,7 +81,7 @@
       if (product && product.image && product.title) {
         container.innerHTML = `
       <div style="margin-top:20px;">
-        <img src="${product.image}" width="200" style="border-radius:8px;" />
+        <img src="${optimizeImage(p.image, 400)}" width="300" style="border-radius:8px;" />
         <h3>${product.title}</h3>
         <p><strong>Price:</strong> ${product.price} €</p>
         <p><strong>ID:</strong> ${product.id}</p>

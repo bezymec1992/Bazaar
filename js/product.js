@@ -17,7 +17,9 @@ async function loadProduct() {
   img.onload = () => {
     img.classList.add('loaded');
   };
-  img.src = product.image;
+
+  const width = window.innerWidth < 600 ? 500 : 800;
+  img.src = optimizeImage(product.image, width);
 
   if (product.sold === true) {
     btn.textContent = 'Sold';

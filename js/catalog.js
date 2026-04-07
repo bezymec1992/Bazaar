@@ -115,8 +115,8 @@ function generateProductsHTML(products) {
       <div class="card ${isSold ? 'card--sold' : ''}">
         <a href="${isSold ? '#' : `product.html?id=${p.id}`}">
           <div class="img-wrap">
-            <img src="${p.image}" width="270" height="270"
-                 loading="lazy" decoding="async" alt="${p.title}">
+            <img src="${optimizeImage(p.image, 400)}" width="270" height="270"
+     loading="lazy" decoding="async" alt="${p.title}">
             
             ${isSold ? `<div class="sold-badge">SOLD</div>` : ''}
           </div>
