@@ -59,7 +59,12 @@
           <h1 id="title"></h1>
           <p id="price" class="product__price"></p>
           <p id="desc" class="product__desc"></p>
-          <button id="buyBtn" class="product__btn">Buy antic</button>
+          <div class="product__btn-wrap">
+            <button id="deliveryBtn" class="product__btn">Delivery info</button>
+            <button id="buyBtn" class="product__btn">BUY ANTIC</button>
+          </div>
+
+          <span class="product__span">Pickup or delivery available</span>
         </div>
       </div>
     </section>
@@ -108,6 +113,22 @@
         </div>
       </div>
     </footer>
+
+    <div id="deliveryModal" class="modal">
+      <div class="modal__content">
+        <span id="modalClose" class="modal__close">&times;</span>
+
+        <h2>Delivery & Pickup</h2>
+
+        <p>After purchase, the item will be marked as <strong>sold</strong>.</p>
+
+        <p>You can pick up your item in-store by showing your payment confirmation.</p>
+
+        <p>Delivery to another city is available upon request. Please contact us after purchase.</p>
+
+        <a href="index.html#contact" class="modal__link"> Contact us about delivery </a>
+      </div>
+    </div>
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/api.js"></script>

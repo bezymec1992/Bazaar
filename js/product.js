@@ -70,3 +70,25 @@ btn.addEventListener('click', async () => {
     alert(err.message);
   }
 });
+
+//modal delivery info
+const deliveryBtn = document.getElementById('deliveryBtn');
+const modal = document.getElementById('deliveryModal');
+const modalClose = document.getElementById('modalClose');
+
+deliveryBtn.onclick = () => {
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+};
+
+modalClose.onclick = () => {
+  modal.classList.remove('show');
+  document.body.style.overflow = '';
+};
+
+modal.onclick = e => {
+  if (e.target === modal) {
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+};
