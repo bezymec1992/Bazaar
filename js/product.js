@@ -22,6 +22,9 @@ async function loadProduct() {
   if (product.sold === true) {
     btn.textContent = 'Sold';
     btn.disabled = true;
+  } else if (product.reserved === true) {
+    btn.textContent = 'Reserved';
+    btn.disabled = true;
   }
 }
 

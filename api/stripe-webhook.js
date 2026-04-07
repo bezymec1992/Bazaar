@@ -42,7 +42,7 @@ export default async function handler(req, res) {
 
     const { data, error } = await supabase
       .from('products')
-      .update({ sold: true })
+      .update({ sold: true, reserved: false })
       .eq('id', metadata.productId)
       .eq('sold', false)
       .select();
@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     try {
       const email = await resend.emails.send({
         from: 'Bazaar <onboarding@resend.dev>',
-        to: 'bbezzymecc@gmail.com', // ← на какой имейл летит почта
+        to: process.env.ADMIN_EMAIL, // ← на какой имейл летит почта
         subject: 'Test email',
         html: `
 <div style="margin: 0; padding: 0; color: #d4af37; font-family: Arial, sans-serif;">
@@ -113,6 +113,17 @@ export default async function handler(req, res) {
     } catch (err) {
       console.error('Resend error:', err);
     }
+  }
+
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object;
+    const { metadata } = session;
+
+    console.log('Session expired:', session.id);
+
+    await supabase.from('products').update({ reserved: false }).eq('id', metadata.productId);
+
+    console.log('Reservation released:', metadata.productId);
   }
 
   res.status(200).json({ received: true });

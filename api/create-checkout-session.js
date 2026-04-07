@@ -32,11 +32,19 @@ export default async function handler(req, res) {
       .select('*')
       .eq('id', id)
       .eq('sold', false)
+      .eq('reserved', false)
       .single();
 
     if (error || !product) {
       return res.status(400).json({ error: 'Product already sold' });
     }
+
+    await supabase
+      .from('products')
+      .update({ reserved: true })
+      .eq('id', id)
+      .eq('sold', false)
+      .eq('reserved', false);
 
     if (!product.price || isNaN(Number(product.price))) {
       return res.status(400).json({ error: 'Invalid product price' });
