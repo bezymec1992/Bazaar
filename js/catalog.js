@@ -67,11 +67,11 @@ function createArtistButtons() {
   const container = document.getElementById('paintingsSubmenu');
 
   const paintings = allProducts.filter(p => p.category === 'painting');
-  const artists = [...new Set(paintings.map(p => p.artist))];
+  const artists = [...new Set(paintings.map(p => p.artist).filter(Boolean))];
 
   container.innerHTML = '';
 
-  // 🔥 ДОБАВЛЯЕМ "All Paintings"
+  // ДОБАВЛЯЕМ "All Paintings"
   const allBtn = document.createElement('button');
   allBtn.textContent = 'All Paintings';
 
@@ -173,12 +173,11 @@ function filterCategory(category, btn) {
 
 function filterArtist(name) {
   const filtered = allProducts.filter(
-    p => p.category === 'painting' && p.artist.toLowerCase() === name.toLowerCase()
+    p => p.category === 'painting' && p.artist && p.artist.toLowerCase() === name.toLowerCase()
   );
 
   updateProducts(filtered);
   setFilterLabel(name);
-
   closeAllFilters();
 }
 
