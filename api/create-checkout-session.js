@@ -68,7 +68,8 @@ export default async function handler(req, res) {
           quantity: 1,
         },
       ],
-      success_url: 'https://bezymec1992.github.io/Bazaar/success.html',
+      // success_url: 'https://bezymec1992.github.io/Bazaar/success.html',
+      success_url: `https://bezymec1992.github.io/Bazaar/success.html?productId=${product.id}`,
       cancel_url: 'https://bezymec1992.github.io/Bazaar/product.html?id=' + productId,
     });
 

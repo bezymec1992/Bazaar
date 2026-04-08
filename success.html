@@ -78,21 +78,25 @@
 
     <script>
       const container = document.getElementById('orderInfo');
-      const product = JSON.parse(localStorage.getItem('lastPurchased'));
 
-      if (product && product.image && product.title) {
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get('productId');
+
+      const products = JSON.parse(localStorage.getItem('products')) || [];
+
+      const product = products.find(p => String(p.id) === String(productId));
+
+      if (product) {
         container.innerHTML = `
-      <div style="margin-top:20px;">
-        <img src="${optimizeImage(product.image, 400)}" width="300" style="border-radius:8px;" />
-        <h3>${product.title}</h3>
-        <p><strong>Price:</strong> ${product.price} €</p>
-        <p><strong>ID:</strong> ${product.id}</p>
-      </div>
-    `;
+    <div style="margin-top:20px;">
+      <img src="${optimizeImage(product.image, 400)}" width="300" style="border-radius:8px;" />
+      <h3>${product.title}</h3>
+      <p><strong>Price:</strong> ${product.price} €</p>
+      <p><strong>ID:</strong> ${product.id}</p>
+    </div>
+  `;
       } else {
-        container.innerHTML = `
-      <p>Order received successfully.</p>
-    `;
+        container.innerHTML = `<p>Order received successfully.</p>`;
       }
 
       localStorage.removeItem('products');
