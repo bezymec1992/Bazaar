@@ -2,6 +2,7 @@ const paintingsBtn = document.getElementById('paintingsBtn');
 let visibleCount = 10;
 let currentProducts = [];
 const loadMoreBtn = document.getElementById('loadMoreBtn');
+let baseProducts = [];
 
 if (paintingsBtn) {
   paintingsBtn.addEventListener('click', e => {
@@ -15,26 +16,17 @@ let allProducts = [];
 
 async function initCatalog() {
   try {
-    const CACHE_KEY = 'products';
-    const CACHE_TIME_KEY = 'products_timestamp';
-    const CACHE_LIFETIME = 1000 * 60 * 5;
+    const hasCache = hasFreshCache();
 
-    const cached = localStorage.getItem(CACHE_KEY);
-    const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
-
-    let isFresh = false;
-
-    if (cached && cachedTime) {
-      isFresh = Date.now() - Number(cachedTime) < CACHE_LIFETIME;
+    if (!hasCache) {
+      renderSkeleton(); //только когда реально нужен
     }
 
-    // 👇 показываем skeleton ТОЛЬКО если нет кэша
-    if (!isFresh) {
-      renderSkeleton();
-    }
+    const data = await getProducts();
 
-    allProducts = await getProducts();
+    allProducts = data;
     currentProducts = allProducts;
+    baseProducts = allProducts;
 
     createArtistButtons();
     renderProducts();
@@ -88,10 +80,7 @@ function createArtistButtons() {
     btn.textContent = `${name} (${count})`;
 
     btn.onclick = () => {
-      filterArtist(name);
-      setFilterLabel(name);
-      setActive(btn);
-      closeAllFilters();
+      filterArtist(name, btn);
     };
 
     container.appendChild(btn);
@@ -109,7 +98,7 @@ function renderProducts() {
 function generateProductsHTML(products) {
   return products
     .map(p => {
-      const isSold = String(p.sold).toLowerCase() === 'true';
+      const isSold = p.sold === true || p.sold === 'true';
 
       return `
       <div class="card ${isSold ? 'card--sold' : ''}">
@@ -165,19 +154,21 @@ if (loadMoreBtn) {
 
 function filterCategory(category, btn) {
   const filtered = allProducts.filter(p => p.category === category);
+  baseProducts = filtered;
   updateProducts(filtered);
   setFilterLabel(btn.textContent);
   setActive(btn);
   closeAllFilters();
 }
 
-function filterArtist(name) {
+function filterArtist(name, btn) {
   const filtered = allProducts.filter(
     p => p.category === 'painting' && p.artist && p.artist.toLowerCase() === name.toLowerCase()
   );
-
+  baseProducts = filtered;
   updateProducts(filtered);
   setFilterLabel(name);
+  setActive(btn);
   closeAllFilters();
 }
 
@@ -225,20 +216,28 @@ function setActive(btn) {
 }
 
 const searchInput = document.getElementById('searchInput');
+let searchTimeout;
 
-if (searchInput) {
-  searchInput.addEventListener('input', e => {
+searchInput.addEventListener('input', e => {
+  clearTimeout(searchTimeout);
+
+  searchTimeout = setTimeout(() => {
     const value = e.target.value.toLowerCase();
 
-    const filtered = allProducts.filter(
+    if (!value) {
+      updateProducts(baseProducts);
+      return;
+    }
+
+    const filtered = baseProducts.filter(
       p =>
         p.title.toLowerCase().includes(value) ||
         (p.artist && p.artist.toLowerCase().includes(value))
     );
 
     updateProducts(filtered);
-  });
-}
+  }, 300); // можно 200–400
+});
 
 function setGridActive(btn) {
   document
@@ -248,17 +247,23 @@ function setGridActive(btn) {
   btn.classList.add('active');
 }
 
-grid1Btn.addEventListener('click', () => {
-  catalog.classList.remove('grid-2');
-  catalog.classList.add('grid-1');
-  setGridActive(grid1Btn);
-});
+const grid1Btn = document.getElementById('grid1Btn');
+const grid2Btn = document.getElementById('grid2Btn');
+const catalog = document.getElementById('catalog');
 
-grid2Btn.addEventListener('click', () => {
-  catalog.classList.remove('grid-1');
-  catalog.classList.add('grid-2');
-  setGridActive(grid2Btn);
-});
+if (grid1Btn && grid2Btn && catalog) {
+  grid1Btn.addEventListener('click', () => {
+    catalog.classList.remove('grid-2');
+    catalog.classList.add('grid-1');
+    setGridActive(grid1Btn);
+  });
+
+  grid2Btn.addEventListener('click', () => {
+    catalog.classList.remove('grid-1');
+    catalog.classList.add('grid-2');
+    setGridActive(grid2Btn);
+  });
+}
 
 function showError(msg) {
   const container = document.getElementById('catalog');

@@ -83,7 +83,7 @@
       if (product && product.image && product.title) {
         container.innerHTML = `
       <div style="margin-top:20px;">
-        <img src="${optimizeImage(p.image, 400)}" width="300" style="border-radius:8px;" />
+        <img src="${optimizeImage(product.image, 400)}" width="300" style="border-radius:8px;" />
         <h3>${product.title}</h3>
         <p><strong>Price:</strong> ${product.price} €</p>
         <p><strong>ID:</strong> ${product.id}</p>
@@ -95,8 +95,8 @@
     `;
       }
 
-      localStorage.setItem('products_timestamp', Date.now());
       localStorage.removeItem('products');
+      localStorage.removeItem('products_timestamp');
       setTimeout(() => {
         window.location.href = 'catalog.html';
       }, 3000);

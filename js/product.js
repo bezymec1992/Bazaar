@@ -1,6 +1,7 @@
 const API_URL = 'https://bazaar-lake-one.vercel.app';
 const btn = document.getElementById('buyBtn');
 const DEFAULT_BTN_TEXT = btn.textContent;
+
 async function loadProduct() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');

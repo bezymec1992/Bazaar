@@ -1,17 +1,15 @@
 const SUPABASE_URL = 'https://oicwhdcmfkckprrnzctn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_YebYXtFgqG3G0sGJH8VAUA_G-ZrlSL-';
+const CACHE_KEY = 'products';
+const CACHE_TIME_KEY = 'products_timestamp';
+const CACHE_LIFETIME = 1000 * 60 * 5;
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function getProducts() {
-  const CACHE_KEY = 'products';
-  const CACHE_TIME_KEY = 'products_timestamp';
-  const CACHE_LIFETIME = 1000 * 60 * 5; // 5 минут
-
   const cached = localStorage.getItem(CACHE_KEY);
   const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
 
-  // ✅ если есть кэш и он свежий
   if (cached && cachedTime) {
     const isFresh = Date.now() - Number(cachedTime) < CACHE_LIFETIME;
 
@@ -33,7 +31,6 @@ async function getProducts() {
     throw new Error('Failed to fetch products');
   }
 
-  // 💾 сохраняем в кэш
   localStorage.setItem(CACHE_KEY, JSON.stringify(data));
   localStorage.setItem(CACHE_TIME_KEY, Date.now());
 
@@ -49,4 +46,13 @@ async function getProductById(id) {
   }
 
   return data;
+}
+
+function hasFreshCache() {
+  const cached = localStorage.getItem(CACHE_KEY);
+  const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+
+  if (!cached || !cachedTime) return false;
+
+  return Date.now() - Number(cachedTime) < CACHE_LIFETIME;
 }
