@@ -1,8 +1,12 @@
 const paintingsBtn = document.getElementById('paintingsBtn');
-let visibleCount = 10;
+let visibleCount = getItemsPerLoad();
 let currentProducts = [];
 const loadMoreBtn = document.getElementById('loadMoreBtn');
 let baseProducts = [];
+
+function getItemsPerLoad() {
+  return window.innerWidth <= 768 ? 10 : 16;
+}
 
 if (paintingsBtn) {
   paintingsBtn.addEventListener('click', e => {
@@ -108,6 +112,7 @@ function generateProductsHTML(products) {
      loading="lazy" decoding="async" alt="${p.title}">
             
             ${isSold ? `<div class="sold-badge">SOLD</div>` : ''}
+            <span class="card__id">${p.id}</span>
           </div>
 
           <div class="info-wrap">
@@ -123,7 +128,7 @@ function generateProductsHTML(products) {
 
 function updateProducts(products) {
   currentProducts = products;
-  visibleCount = 10;
+  visibleCount = getItemsPerLoad();
   renderProducts();
 }
 
@@ -146,7 +151,7 @@ if (loadMoreBtn) {
     loadMoreBtn.textContent = 'Loading...';
 
     setTimeout(() => {
-      visibleCount += 10;
+      visibleCount += getItemsPerLoad();
       renderProducts();
     }, 300);
   };
