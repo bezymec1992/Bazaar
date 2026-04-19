@@ -20,7 +20,9 @@ function safeHttpsUrl(u) {
 }
 
 function isUniqueViolation(err) {
-  return err?.code === '23505' || /duplicate key|unique constraint/i.test(String(err?.message || ''));
+  return (
+    err?.code === '23505' || /duplicate key|unique constraint/i.test(String(err?.message || ''))
+  );
 }
 
 function requiredEnv(name) {
@@ -113,8 +115,14 @@ async function claimWebhookEvent(supabase, eventId, checkoutSessionId) {
     id: eventId,
     checkout_session_id: checkoutSessionId,
   });
+
+  if (error) {
+    console.error('SUPABASE INSERT ERROR:', error); // 👈 ДОБАВЬ ЭТО
+  }
+
   if (!error) return 'new';
   if (isUniqueViolation(error)) return 'duplicate';
+
   const err = new Error(error.message || 'stripe_webhook_events insert failed');
   err.cause = error;
   throw err;
@@ -215,7 +223,9 @@ async function handleCheckoutSessionCompleted(event, res, supabase, resend, admi
         email_last_error: 'no_row_updated',
       })
       .eq('id', eventId);
-    return res.status(200).json({ received: true, skipped: true, reason: 'already_sold_or_missing' });
+    return res
+      .status(200)
+      .json({ received: true, skipped: true, reason: 'already_sold_or_missing' });
   }
   console.log('[webhook] product marked sold', {
     eventId,
