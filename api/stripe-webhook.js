@@ -164,8 +164,6 @@ async function sendCustomerEmail(resend, metadata, customerEmail) {
   });
 }
 
-console.log('CUSTOMER EMAIL:', customerEmail);
-
 /**
  * Claim this Stripe event id. Returns 'new' if we own processing, 'duplicate' if another delivery won the row.
  */
@@ -209,6 +207,7 @@ async function releaseClaim(supabase, eventId) {
 async function handleCheckoutSessionCompleted(event, res, supabase, resend, adminEmail) {
   const session = event.data.object;
   const customerEmail = session.customer_details?.email || session.customer_email;
+  console.log('CUSTOMER EMAIL:', customerEmail);
   const eventId = event.id;
   const checkoutSessionId = session.id;
   const { metadata } = session;
@@ -269,7 +268,7 @@ async function handleCheckoutSessionCompleted(event, res, supabase, resend, admi
   const { data, error } = await supabase
     .from('products')
     .update({ sold: true })
-    .eq('id', metadata.productId)
+    .eq('id', Number(metadata.productId))
     .eq('sold', false)
     .select();
 
