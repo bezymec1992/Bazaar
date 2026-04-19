@@ -59,7 +59,11 @@ export default async function handler(req, res) {
     }
 
     if (!product) {
-      const { data: row, error: err2 } = await supabase.from('products').select('id,sold').eq('id', id).maybeSingle();
+      const { data: row, error: err2 } = await supabase
+        .from('products')
+        .select('id,sold')
+        .eq('id', id)
+        .maybeSingle();
       if (err2) {
         console.error('Checkout product lookup:', err2);
         return res.status(500).json({ error: 'Server error' });
@@ -90,6 +94,7 @@ export default async function handler(req, res) {
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
+      customer_creation: 'always',
 
       metadata: {
         productId: String(product.id),
@@ -113,7 +118,8 @@ export default async function handler(req, res) {
       // success_url: 'https://bezymec1992.github.io/Bazaar/success.html',
       success_url: `https://bezymec1992.github.io/Bazaar/success.html?productId=${encodeURIComponent(String(product.id))}`,
       cancel_url:
-        'https://bezymec1992.github.io/Bazaar/product.html?id=' + encodeURIComponent(String(product.id)),
+        'https://bezymec1992.github.io/Bazaar/product.html?id=' +
+        encodeURIComponent(String(product.id)),
     });
 
     res.status(200).json({ url: session.url });

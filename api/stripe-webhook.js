@@ -96,6 +96,47 @@ function buildOrderEmailHtml(metadata) {
 `;
 }
 
+function buildCustomerEmailHtml(metadata) {
+  const title = escapeHtml(metadata.title);
+  const price = escapeHtml(metadata.price);
+  const imageUrl = safeHttpsUrl(metadata.image);
+
+  return `
+<div style="margin:0; padding:0; font-family: Arial; color:#d4af37;">
+  <div style="max-width:600px; margin:40px auto; padding:30px; background:#0f4a1a; border-radius:12px;">
+    
+    <div style="text-align:center;">
+      <img src="https://bezymec1992.github.io/Bazaar/imgs/logo.png" width="70"/>
+    </div>
+
+    <h2 style="text-align:center;">Thank you for your purchase!</h2>
+
+    <p>You have successfully purchased:</p>
+
+    <p><strong>${title}</strong></p>
+    <p>Price: €${price}</p>
+
+    ${
+      imageUrl
+        ? `<img src="${imageUrl}" width="200" style="margin-top:10px; border-radius:8px;" />`
+        : ''
+    }
+
+    <p style="margin-top:20px;">
+      We will contact you shortly regarding delivery.
+    </p>
+
+    <hr style="margin:20px 0;">
+
+    <p style="font-size:12px; opacity:0.7; text-align:center;">
+      Bazaar Antiques
+    </p>
+
+  </div>
+</div>
+`;
+}
+
 async function sendOrderEmail(resend, metadata, adminEmail) {
   const html = buildOrderEmailHtml(metadata);
   const result = await resend.emails.send({
@@ -105,6 +146,22 @@ async function sendOrderEmail(resend, metadata, adminEmail) {
     html,
   });
   console.log('[webhook] resend sent', { resendId: result?.data?.id || null });
+}
+
+async function sendCustomerEmail(resend, metadata, customerEmail) {
+  const html = buildCustomerEmailHtml(metadata);
+
+  const result = await resend.emails.send({
+    from: 'Bazaar <onboarding@resend.dev>',
+    to: customerEmail,
+    subject: 'Your Bazaar order',
+    html,
+  });
+
+  console.log('[webhook] customer email sent', {
+    email: customerEmail,
+    resendId: result?.data?.id || null,
+  });
 }
 
 /**
@@ -149,6 +206,7 @@ async function releaseClaim(supabase, eventId) {
 
 async function handleCheckoutSessionCompleted(event, res, supabase, resend, adminEmail) {
   const session = event.data.object;
+  const customerEmail = session.customer_details?.email;
   const eventId = event.id;
   const checkoutSessionId = session.id;
   const { metadata } = session;
@@ -191,6 +249,11 @@ async function handleCheckoutSessionCompleted(event, res, supabase, resend, admi
 
     try {
       await sendOrderEmail(resend, metadata, adminEmail);
+
+      if (customerEmail) {
+        await sendCustomerEmail(resend, metadata, customerEmail);
+      }
+
       await markEmailOk(supabase, eventId);
       console.log('[webhook] duplicate path email recovered', { eventId });
       return res.status(200).json({ received: true, email_retried: true });
