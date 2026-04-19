@@ -40,8 +40,9 @@ async function initCatalog() {
   }
 }
 
-function renderSkeleton(count = 6) {
+function renderSkeleton(count = 8) {
   const container = document.getElementById('catalog');
+  if (!container) return;
 
   container.innerHTML = Array(count)
     .fill(0)
@@ -61,13 +62,18 @@ function renderSkeleton(count = 6) {
 
 function createArtistButtons() {
   const container = document.getElementById('paintingsSubmenu');
+  if (!container) return;
 
   const paintings = allProducts.filter(p => p.category === 'painting');
-  const artists = [...new Set(paintings.map(p => p.artist).filter(Boolean))];
+  const artistCounts = new Map();
+  for (const p of paintings) {
+    if (!p.artist) continue;
+    artistCounts.set(p.artist, (artistCounts.get(p.artist) || 0) + 1);
+  }
+  const artists = [...artistCounts.keys()];
 
   container.innerHTML = '';
 
-  // ДОБАВЛЯЕМ "All Paintings"
   const allBtn = document.createElement('button');
   allBtn.textContent = 'All Paintings';
 
@@ -78,7 +84,7 @@ function createArtistButtons() {
   container.appendChild(allBtn);
 
   artists.forEach(name => {
-    const count = paintings.filter(p => p.artist === name).length;
+    const count = artistCounts.get(name) || 0;
 
     const btn = document.createElement('button');
     btn.textContent = `${name} (${count})`;
@@ -93,6 +99,7 @@ function createArtistButtons() {
 
 function renderProducts() {
   const container = document.getElementById('catalog');
+  if (!container) return;
   const visibleProducts = currentProducts.slice(0, visibleCount);
   container.innerHTML = generateProductsHTML(visibleProducts);
 
@@ -103,21 +110,26 @@ function generateProductsHTML(products) {
   return products
     .map(p => {
       const isSold = p.sold === true || p.sold === 'true';
+      const safeId = encodeURIComponent(String(p.id));
+      const href = isSold ? '#' : `product.html?id=${safeId}`;
+      const imgSrc = optimizeImage(p.image, 400);
+      const titleEsc = escapeHtml(p.title);
+      const priceEsc = escapeHtml(p.price);
 
       return `
       <div class="card ${isSold ? 'card--sold' : ''}">
-        <a href="${isSold ? '#' : `product.html?id=${p.id}`}">
+        <a href="${href}">
           <div class="img-wrap">
-            <img src="${optimizeImage(p.image, 400)}" width="270" height="270"
-     loading="lazy" decoding="async" alt="${p.title}">
+            <img src="${imgSrc}" width="270" height="270"
+     loading="lazy" decoding="async" alt="${titleEsc}">
             
             ${isSold ? `<div class="sold-badge">SOLD</div>` : ''}
-            <span class="card__id">${p.id}</span>
+            <span class="card__id">${escapeHtml(p.id)}</span>
           </div>
 
           <div class="info-wrap">
-            <h3>${p.title}</h3>
-            <p>${p.price} €</p>
+            <h3>${titleEsc}</h3>
+            <p>${priceEsc} €</p>
           </div>
         </a>
       </div>
@@ -149,11 +161,8 @@ function updateLoadMoreButton() {
 if (loadMoreBtn) {
   loadMoreBtn.onclick = () => {
     loadMoreBtn.textContent = 'Loading...';
-
-    setTimeout(() => {
-      visibleCount += getItemsPerLoad();
-      renderProducts();
-    }, 300);
+    visibleCount += getItemsPerLoad();
+    renderProducts();
   };
 }
 
@@ -201,13 +210,17 @@ if (filter && toggle) {
 
 function setFilterLabel(text) {
   const btn = document.getElementById('filterToggle');
-  if (btn) {
-    btn.firstChild.nodeValue = text + ' ';
+  if (!btn) return;
+  for (const node of btn.childNodes) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      node.nodeValue = text + ' ';
+      return;
+    }
   }
 }
 
 function closeAllFilters() {
-  filter.classList.remove('open');
+  if (filter) filter.classList.remove('open');
 
   document.querySelectorAll('.submenu').forEach(s => {
     s.classList.remove('open');
@@ -223,26 +236,28 @@ function setActive(btn) {
 const searchInput = document.getElementById('searchInput');
 let searchTimeout;
 
-searchInput.addEventListener('input', e => {
-  clearTimeout(searchTimeout);
+if (searchInput) {
+  searchInput.addEventListener('input', e => {
+    clearTimeout(searchTimeout);
 
-  searchTimeout = setTimeout(() => {
-    const value = e.target.value.toLowerCase();
+    searchTimeout = setTimeout(() => {
+      const value = e.target.value.toLowerCase().trim();
 
-    if (!value) {
-      updateProducts(baseProducts);
-      return;
-    }
+      if (!value) {
+        updateProducts(baseProducts);
+        return;
+      }
 
-    const filtered = baseProducts.filter(
-      p =>
-        p.title.toLowerCase().includes(value) ||
-        (p.artist && p.artist.toLowerCase().includes(value))
-    );
+      const filtered = baseProducts.filter(
+        p =>
+          (p.title && p.title.toLowerCase().includes(value)) ||
+          (p.artist && p.artist.toLowerCase().includes(value))
+      );
 
-    updateProducts(filtered);
-  }, 300); // можно 200–400
-});
+      updateProducts(filtered);
+    }, 300);
+  });
+}
 
 function setGridActive(btn) {
   document
@@ -272,5 +287,11 @@ if (grid1Btn && grid2Btn && catalog) {
 
 function showError(msg) {
   const container = document.getElementById('catalog');
-  container.innerHTML = `<p style="color:red">${msg}</p>`;
+  if (!container) return;
+  const p = document.createElement('p');
+  p.className = 'catalog__error';
+  p.style.color = '#e8a0a0';
+  p.textContent = msg;
+  container.innerHTML = '';
+  container.appendChild(p);
 }

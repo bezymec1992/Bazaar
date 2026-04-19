@@ -77,33 +77,80 @@
     <script src="js/image.js"></script>
 
     <script>
-      const container = document.getElementById('orderInfo');
+      (function () {
+        const CACHE_KEY = 'products';
+        const CACHE_TIME_KEY = 'products_timestamp';
 
-      const params = new URLSearchParams(window.location.search);
-      const productId = params.get('productId');
+        const container = document.getElementById('orderInfo');
+        if (!container) return;
 
-      const products = JSON.parse(localStorage.getItem('products')) || [];
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get('productId');
 
-      const product = products.find(p => String(p.id) === String(productId));
+        let products = [];
+        try {
+          products = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
+          if (!Array.isArray(products)) products = [];
+        } catch {
+          products = [];
+        }
 
-      if (product) {
-        container.innerHTML = `
-    <div style="margin-top:20px;">
-      <img src="${optimizeImage(product.image, 400)}" width="300" style="border-radius:8px;" />
-      <h3>${product.title}</h3>
-      <p><strong>Price:</strong> ${product.price} €</p>
-      <p><strong>ID:</strong> ${product.id}</p>
-    </div>
-  `;
-      } else {
-        container.innerHTML = `<p>Order received successfully.</p>`;
-      }
+        const product = products.find(p => String(p.id) === String(productId));
 
-      localStorage.removeItem('products');
-      localStorage.removeItem('products_timestamp');
-      setTimeout(() => {
-        window.location.href = 'catalog.html';
-      }, 3000);
+        if (product) {
+          const wrap = document.createElement('div');
+          wrap.style.marginTop = '20px';
+
+          const img = document.createElement('img');
+          img.width = 300;
+          img.style.borderRadius = '8px';
+          img.alt = '';
+          const src = optimizeImage(product.image, 400);
+          if (src) img.src = src;
+
+          const h3 = document.createElement('h3');
+          h3.textContent = product.title != null ? String(product.title) : '';
+
+          const priceP = document.createElement('p');
+          const priceStrong = document.createElement('strong');
+          priceStrong.textContent = 'Price: ';
+          priceP.appendChild(priceStrong);
+          priceP.appendChild(document.createTextNode(String(product.price) + ' €'));
+
+          const idP = document.createElement('p');
+          const idStrong = document.createElement('strong');
+          idStrong.textContent = 'ID: ';
+          idP.appendChild(idStrong);
+          idP.appendChild(document.createTextNode(String(product.id)));
+
+          wrap.appendChild(img);
+          wrap.appendChild(h3);
+          wrap.appendChild(priceP);
+          wrap.appendChild(idP);
+          container.appendChild(wrap);
+
+          try {
+            const updated = products.map(p =>
+              String(p.id) === String(productId) ? { ...p, sold: true } : p
+            );
+            localStorage.setItem(CACHE_KEY, JSON.stringify(updated));
+            localStorage.removeItem(CACHE_TIME_KEY);
+          } catch (e) {
+            console.error(e);
+            localStorage.removeItem(CACHE_KEY);
+            localStorage.removeItem(CACHE_TIME_KEY);
+          }
+        } else {
+          const p = document.createElement('p');
+          p.textContent = 'Order received successfully.';
+          container.appendChild(p);
+          localStorage.removeItem(CACHE_TIME_KEY);
+        }
+
+        setTimeout(() => {
+          window.location.href = 'catalog.html';
+        }, 3000);
+      })();
     </script>
   </body>
 </html>

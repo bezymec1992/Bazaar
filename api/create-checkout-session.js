@@ -18,7 +18,8 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { productId } = req.body;
+    const body = req.body && typeof req.body === 'object' ? req.body : {};
+    const { productId } = body;
 
     const id = Number(productId);
 
@@ -69,8 +70,9 @@ export default async function handler(req, res) {
         },
       ],
       // success_url: 'https://bezymec1992.github.io/Bazaar/success.html',
-      success_url: `https://bezymec1992.github.io/Bazaar/success.html?productId=${product.id}`,
-      cancel_url: 'https://bezymec1992.github.io/Bazaar/product.html?id=' + productId,
+      success_url: `https://bezymec1992.github.io/Bazaar/success.html?productId=${encodeURIComponent(String(product.id))}`,
+      cancel_url:
+        'https://bezymec1992.github.io/Bazaar/product.html?id=' + encodeURIComponent(String(product.id)),
     });
 
     res.status(200).json({ url: session.url });

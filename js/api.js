@@ -38,11 +38,15 @@ async function getProducts() {
 }
 
 async function getProductById(id) {
-  const { data, error } = await db.from('products').select('*').eq('id', id).single();
+  const n = Number(id);
+  if (!Number.isFinite(n)) return null;
+
+  const { data, error } = await db.from('products').select('*').eq('id', n).single();
 
   if (error) {
+    if (error.code === 'PGRST116') return null;
     console.error(error);
-    throw new Error('Product not found');
+    throw new Error('Failed to load product');
   }
 
   return data;

@@ -2,6 +2,23 @@ import Stripe from 'stripe';
 import { Resend } from 'resend';
 
 import { createClient } from '@supabase/supabase-js';
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function safeHttpsUrl(u) {
+  if (!u || typeof u !== 'string') return '';
+  const t = u.trim();
+  return /^https:\/\//i.test(t) ? t : '';
+}
+
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 const stripe = new Stripe(process.env.STRIPE_SECRET);
@@ -40,6 +57,11 @@ export default async function handler(req, res) {
     const { metadata } = session;
     console.log('Payment successful:', session.id);
 
+    if (!metadata || metadata.productId == null || metadata.productId === '') {
+      console.warn('checkout.session.completed missing product metadata');
+      return res.status(200).json({ received: true, skipped: true });
+    }
+
     const { data, error } = await supabase
       .from('products')
       .update({ sold: true })
@@ -49,15 +71,23 @@ export default async function handler(req, res) {
 
     if (error) {
       console.error('DB error:', error);
-      return;
+      return res.status(500).json({ error: 'Database error' });
     }
 
     if (!data || data.length === 0) {
       console.log('Product already sold, skipping...');
-      return; // НЕ отправляем email
+      return res.status(200).json({ received: true, skipped: true });
     }
 
     console.log('Order processed:', metadata.productId);
+    const title = escapeHtml(metadata.title);
+    const price = escapeHtml(metadata.price);
+    const productId = escapeHtml(metadata.productId);
+    const imageUrl = safeHttpsUrl(metadata.image);
+    const productImg = imageUrl
+      ? `<img src="${escapeHtml(imageUrl)}" width="150" style="margin-top:10px; border-radius:6px;" alt="" />`
+      : '';
+
     try {
       const email = await resend.emails.send({
         from: 'Bazaar <onboarding@resend.dev>',
@@ -87,11 +117,11 @@ export default async function handler(req, res) {
       
       <h2 style="margin-bottom:20px;">🛒 New Order</h2>
 
-      <p><strong>Product:</strong> ${metadata.title}</p>
-      <p><strong>Price:</strong> €${metadata.price}</p>
-      <p><strong>ID:</strong> ${metadata.productId}</p>
+      <p><strong>Product:</strong> ${title}</p>
+      <p><strong>Price:</strong> €${price}</p>
+      <p><strong>ID:</strong> ${productId}</p>
 
-      <img src="${metadata.image}" width="150" style="margin-top:10px; border-radius:6px;" />
+      ${productImg}
 
       <hr style="margin:20px 0;">
 

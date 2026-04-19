@@ -1,30 +1,68 @@
-const API_URL = 'https://bazaar-lake-one.vercel.app';
-const btn = document.getElementById('buyBtn');
-const DEFAULT_BTN_TEXT = btn.textContent;
+const CHECKOUT_ORIGIN = 'https://bazaar-lake-one.vercel.app';
+const buyBtn = document.getElementById('buyBtn');
+const DEFAULT_BTN_TEXT = buyBtn ? buyBtn.textContent : '';
 
 async function loadProduct() {
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
+  const numericId = Number(id);
 
-  const product = await getProductById(Number(id));
-
-  if (!product) return;
-
-  document.getElementById('title').textContent = product.title;
-  document.getElementById('price').textContent = product.price + ' €';
-  document.getElementById('desc').textContent = product.description;
-
+  const titleEl = document.getElementById('title');
+  const priceEl = document.getElementById('price');
+  const descEl = document.getElementById('desc');
   const img = document.getElementById('image');
-  img.onload = () => {
-    img.classList.add('loaded');
-  };
 
-  const width = window.innerWidth < 600 ? 500 : 800;
-  img.src = optimizeImage(product.image, width);
+  if (!id || !Number.isFinite(numericId)) {
+    if (titleEl) titleEl.textContent = 'Product not found';
+    if (priceEl) priceEl.textContent = '';
+    if (descEl) descEl.textContent = 'Missing or invalid product link.';
+    if (buyBtn) {
+      buyBtn.disabled = true;
+      buyBtn.textContent = 'Unavailable';
+    }
+    return;
+  }
 
-  if (product.sold === true) {
-    btn.textContent = 'Sold';
-    btn.disabled = true;
+  try {
+    const product = await getProductById(numericId);
+
+    if (!product) {
+      if (titleEl) titleEl.textContent = 'Product not found';
+      if (priceEl) priceEl.textContent = '';
+      if (descEl) descEl.textContent = 'This item may have been removed.';
+      if (buyBtn) {
+        buyBtn.disabled = true;
+        buyBtn.textContent = 'Unavailable';
+      }
+      return;
+    }
+
+    if (titleEl) titleEl.textContent = product.title;
+    if (priceEl) priceEl.textContent = product.price + ' €';
+    if (descEl) descEl.textContent = product.description;
+
+    if (img) {
+      img.onload = () => {
+        img.classList.add('loaded');
+      };
+
+      const width = window.innerWidth < 600 ? 500 : 800;
+      img.src = optimizeImage(product.image, width);
+    }
+
+    const isSold = product.sold === true || product.sold === 'true';
+    if (isSold && buyBtn) {
+      buyBtn.textContent = 'Sold';
+      buyBtn.disabled = true;
+    }
+  } catch (e) {
+    console.error(e);
+    if (titleEl) titleEl.textContent = 'Something went wrong';
+    if (descEl) descEl.textContent = 'Please try again later.';
+    if (buyBtn) {
+      buyBtn.disabled = true;
+      buyBtn.textContent = 'Unavailable';
+    }
   }
 }
 
@@ -34,72 +72,92 @@ const image = document.getElementById('image');
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 
-image.onclick = () => {
-  lightbox.classList.add('show');
-  lightboxImg.src = image.src;
-  document.body.style.overflow = 'hidden';
-};
+if (image && lightbox && lightboxImg) {
+  image.addEventListener('click', () => {
+    lightbox.classList.add('show');
+    lightboxImg.src = image.src;
+    document.body.style.overflow = 'hidden';
+  });
 
-lightbox.onclick = () => {
-  lightbox.classList.remove('show');
-  document.body.style.overflow = '';
-};
+  lightbox.addEventListener('click', () => {
+    lightbox.classList.remove('show');
+    document.body.style.overflow = '';
+  });
+}
 
-btn.addEventListener('click', async () => {
-  try {
-    btn.textContent = 'Loading...';
-    btn.disabled = true;
+if (buyBtn) {
+  buyBtn.addEventListener('click', async () => {
+    if (buyBtn.disabled) return;
 
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
+    try {
+      buyBtn.textContent = 'Loading...';
+      buyBtn.disabled = true;
 
-    const res = await fetch(API_URL + '/api/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId: id }),
-    });
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
 
-    const data = await res.json(); // 🔥 сначала читаем ответ
+      const res = await fetch(CHECKOUT_ORIGIN + '/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: id }),
+      });
 
-    if (!res.ok) {
-      throw new Error(data.error || 'Checkout failed'); // 🔥 используем текст с бэка
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error('Invalid response from server');
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Checkout failed');
+      }
+
+      if (!data.url) {
+        throw new Error('No checkout URL returned');
+      }
+
+      window.location.href = data.url;
+    } catch (err) {
+      buyBtn.textContent = DEFAULT_BTN_TEXT;
+      buyBtn.disabled = false;
+      alert(err.message || 'Checkout failed');
     }
+  });
+}
 
-    window.location.href = data.url;
-  } catch (err) {
-    btn.textContent = DEFAULT_BTN_TEXT;
-    btn.disabled = false;
-    alert(err.message);
-  }
-});
-
-//modal delivery info
 const deliveryBtn = document.getElementById('deliveryBtn');
 const modal = document.getElementById('deliveryModal');
 const modalClose = document.getElementById('modalClose');
 
 const closeModal = () => {
-  modal.classList.remove('show');
+  if (modal) modal.classList.remove('show');
   document.body.style.overflow = '';
   document.body.style.paddingRight = '';
 };
 
-deliveryBtn.onclick = () => {
-  const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+if (deliveryBtn && modal) {
+  deliveryBtn.addEventListener('click', () => {
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
 
-  document.body.style.paddingRight = scrollBarWidth + 'px';
-  document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = scrollBarWidth + 'px';
+    document.body.style.overflow = 'hidden';
 
-  modal.classList.add('show');
-};
+    modal.classList.add('show');
+  });
+}
 
-modalClose.onclick = closeModal;
+if (modalClose) {
+  modalClose.addEventListener('click', closeModal);
+}
 
-modal.onclick = e => {
-  if (e.target === modal) {
-    closeModal();
-  }
-};
+if (modal) {
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+}
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
