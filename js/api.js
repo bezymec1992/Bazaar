@@ -1,3 +1,4 @@
+/** Public anon key: security = Postgres RLS on `products` (read-only catalog, no writes). */
 const SUPABASE_URL = 'https://oicwhdcmfkckprrnzctn.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_YebYXtFgqG3G0sGJH8VAUA_G-ZrlSL-';
 const CACHE_KEY = 'products';
@@ -15,7 +16,10 @@ async function getProducts() {
 
     if (isFresh) {
       try {
-        return JSON.parse(cached);
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed)) return parsed;
+        localStorage.removeItem(CACHE_KEY);
+        localStorage.removeItem(CACHE_TIME_KEY);
       } catch (e) {
         console.error('Cache parse error:', e);
         localStorage.removeItem(CACHE_KEY);
@@ -31,8 +35,16 @@ async function getProducts() {
     throw new Error('Failed to fetch products');
   }
 
-  localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-  localStorage.setItem(CACHE_TIME_KEY, Date.now());
+  if (!Array.isArray(data)) {
+    throw new Error('Failed to fetch products');
+  }
+
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    localStorage.setItem(CACHE_TIME_KEY, String(Date.now()));
+  } catch (e) {
+    console.warn('Product cache write failed (quota or disabled):', e);
+  }
 
   return data;
 }

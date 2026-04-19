@@ -37,17 +37,23 @@ async function loadProduct() {
       return;
     }
 
-    if (titleEl) titleEl.textContent = product.title;
-    if (priceEl) priceEl.textContent = product.price + ' €';
-    if (descEl) descEl.textContent = product.description;
+    if (titleEl) titleEl.textContent = product.title != null ? String(product.title) : '';
+    if (priceEl) priceEl.textContent = (product.price != null ? String(product.price) : '') + ' €';
+    if (descEl) descEl.textContent = product.description != null ? String(product.description) : '';
 
     if (img) {
       img.onload = () => {
         img.classList.add('loaded');
       };
+      img.onerror = () => {
+        img.removeAttribute('src');
+        img.alt = 'Image unavailable';
+      };
 
       const width = window.innerWidth < 600 ? 500 : 800;
-      img.src = optimizeImage(product.image, width);
+      const src = optimizeImage(product.image, width);
+      if (src) img.src = src;
+      else img.removeAttribute('src');
     }
 
     const isSold = product.sold === true || product.sold === 'true';

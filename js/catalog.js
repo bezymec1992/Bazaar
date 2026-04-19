@@ -1,12 +1,20 @@
 const paintingsBtn = document.getElementById('paintingsBtn');
-let visibleCount = getItemsPerLoad();
-let currentProducts = [];
 const loadMoreBtn = document.getElementById('loadMoreBtn');
-let baseProducts = [];
 
 function getItemsPerLoad() {
   return window.innerWidth <= 768 ? 10 : 16;
 }
+
+/** Single mutable catalog state (no framework). */
+const catalogState = {
+  visibleCount: getItemsPerLoad(),
+  currentProducts: [],
+  baseProducts: [],
+  allProducts: [],
+};
+
+const PLACEHOLDER_PIXEL =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
 if (paintingsBtn) {
   paintingsBtn.addEventListener('click', e => {
@@ -16,8 +24,6 @@ if (paintingsBtn) {
     submenu.classList.toggle('open');
   });
 }
-let allProducts = [];
-
 async function initCatalog() {
   try {
     const hasCache = hasFreshCache();
@@ -28,9 +34,9 @@ async function initCatalog() {
 
     const data = await getProducts();
 
-    allProducts = data;
-    currentProducts = allProducts;
-    baseProducts = allProducts;
+    catalogState.allProducts = data;
+    catalogState.currentProducts = catalogState.allProducts;
+    catalogState.baseProducts = catalogState.allProducts;
 
     createArtistButtons();
     renderProducts();
@@ -64,7 +70,7 @@ function createArtistButtons() {
   const container = document.getElementById('paintingsSubmenu');
   if (!container) return;
 
-  const paintings = allProducts.filter(p => p.category === 'painting');
+  const paintings = catalogState.allProducts.filter(p => p.category === 'painting');
   const artistCounts = new Map();
   for (const p of paintings) {
     if (!p.artist) continue;
@@ -100,7 +106,7 @@ function createArtistButtons() {
 function renderProducts() {
   const container = document.getElementById('catalog');
   if (!container) return;
-  const visibleProducts = currentProducts.slice(0, visibleCount);
+  const visibleProducts = catalogState.currentProducts.slice(0, catalogState.visibleCount);
   container.innerHTML = generateProductsHTML(visibleProducts);
 
   updateLoadMoreButton();
@@ -108,11 +114,12 @@ function renderProducts() {
 
 function generateProductsHTML(products) {
   return products
+    .filter(p => p && p.id != null)
     .map(p => {
       const isSold = p.sold === true || p.sold === 'true';
       const safeId = encodeURIComponent(String(p.id));
       const href = isSold ? '#' : `product.html?id=${safeId}`;
-      const imgSrc = optimizeImage(p.image, 400);
+      const imgSrc = optimizeImage(p.image, 400) || PLACEHOLDER_PIXEL;
       const titleEsc = escapeHtml(p.title);
       const priceEsc = escapeHtml(p.price);
 
@@ -139,15 +146,15 @@ function generateProductsHTML(products) {
 }
 
 function updateProducts(products) {
-  currentProducts = products;
-  visibleCount = getItemsPerLoad();
+  catalogState.currentProducts = products;
+  catalogState.visibleCount = getItemsPerLoad();
   renderProducts();
 }
 
 function updateLoadMoreButton() {
   if (!loadMoreBtn) return;
 
-  if (visibleCount < currentProducts.length) {
+  if (catalogState.visibleCount < catalogState.currentProducts.length) {
     loadMoreBtn.style.display = 'block';
     loadMoreBtn.textContent = 'Load more';
     loadMoreBtn.disabled = false;
@@ -161,14 +168,14 @@ function updateLoadMoreButton() {
 if (loadMoreBtn) {
   loadMoreBtn.onclick = () => {
     loadMoreBtn.textContent = 'Loading...';
-    visibleCount += getItemsPerLoad();
+    catalogState.visibleCount += getItemsPerLoad();
     renderProducts();
   };
 }
 
 function filterCategory(category, btn) {
-  const filtered = allProducts.filter(p => p.category === category);
-  baseProducts = filtered;
+  const filtered = catalogState.allProducts.filter(p => p.category === category);
+  catalogState.baseProducts = filtered;
   updateProducts(filtered);
   setFilterLabel(btn.textContent);
   setActive(btn);
@@ -176,10 +183,10 @@ function filterCategory(category, btn) {
 }
 
 function filterArtist(name, btn) {
-  const filtered = allProducts.filter(
+  const filtered = catalogState.allProducts.filter(
     p => p.category === 'painting' && p.artist && p.artist.toLowerCase() === name.toLowerCase()
   );
-  baseProducts = filtered;
+  catalogState.baseProducts = filtered;
   updateProducts(filtered);
   setFilterLabel(name);
   setActive(btn);
@@ -187,7 +194,7 @@ function filterArtist(name, btn) {
 }
 
 function showAll(btn) {
-  updateProducts(allProducts);
+  updateProducts(catalogState.allProducts);
   setFilterLabel(btn.textContent);
   setActive(btn);
   closeAllFilters();
@@ -228,6 +235,7 @@ function closeAllFilters() {
 }
 
 function setActive(btn) {
+  if (!btn) return;
   document.querySelectorAll('.filter-menu button').forEach(b => b.classList.remove('active'));
 
   btn.classList.add('active');
@@ -244,11 +252,11 @@ if (searchInput) {
       const value = e.target.value.toLowerCase().trim();
 
       if (!value) {
-        updateProducts(baseProducts);
+        updateProducts(catalogState.baseProducts);
         return;
       }
 
-      const filtered = baseProducts.filter(
+      const filtered = catalogState.baseProducts.filter(
         p =>
           (p.title && p.title.toLowerCase().includes(value)) ||
           (p.artist && p.artist.toLowerCase().includes(value))
@@ -260,6 +268,7 @@ if (searchInput) {
 }
 
 function setGridActive(btn) {
+  if (!btn) return;
   document
     .querySelectorAll('.catalog__grid-btns button')
     .forEach(b => b.classList.remove('active'));
