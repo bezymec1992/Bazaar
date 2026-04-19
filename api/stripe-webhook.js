@@ -164,6 +164,8 @@ async function sendCustomerEmail(resend, metadata, customerEmail) {
   });
 }
 
+console.log('CUSTOMER EMAIL:', customerEmail);
+
 /**
  * Claim this Stripe event id. Returns 'new' if we own processing, 'duplicate' if another delivery won the row.
  */
