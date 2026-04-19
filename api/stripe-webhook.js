@@ -23,6 +23,23 @@ function isUniqueViolation(err) {
   return err?.code === '23505' || /duplicate key|unique constraint/i.test(String(err?.message || ''));
 }
 
+function requiredEnv(name) {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing required env: ${name}`);
+  return value;
+}
+
+function getEnv() {
+  return {
+    STRIPE_SECRET: requiredEnv('STRIPE_SECRET'),
+    STRIPE_WEBHOOK_SECRET: requiredEnv('STRIPE_WEBHOOK_SECRET'),
+    SUPABASE_URL: requiredEnv('SUPABASE_URL'),
+    SUPABASE_SERVICE_KEY: requiredEnv('SUPABASE_SERVICE_KEY'),
+    RESEND_API_KEY: requiredEnv('RESEND_API_KEY'),
+    ADMIN_EMAIL: requiredEnv('ADMIN_EMAIL'),
+  };
+}
+
 function buildOrderEmailHtml(metadata) {
   const title = escapeHtml(metadata.title);
   const price = escapeHtml(metadata.price);
@@ -77,14 +94,15 @@ function buildOrderEmailHtml(metadata) {
 `;
 }
 
-async function sendOrderEmail(resend, metadata) {
+async function sendOrderEmail(resend, metadata, adminEmail) {
   const html = buildOrderEmailHtml(metadata);
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: 'Bazaar <onboarding@resend.dev>',
-    to: process.env.ADMIN_EMAIL,
+    to: adminEmail,
     subject: 'New Bazaar order',
     html,
   });
+  console.log('[webhook] resend sent', { resendId: result?.data?.id || null });
 }
 
 /**
@@ -121,11 +139,16 @@ async function releaseClaim(supabase, eventId) {
   await supabase.from('stripe_webhook_events').delete().eq('id', eventId);
 }
 
-async function handleCheckoutSessionCompleted(event, res, supabase, resend) {
+async function handleCheckoutSessionCompleted(event, res, supabase, resend, adminEmail) {
   const session = event.data.object;
   const eventId = event.id;
   const checkoutSessionId = session.id;
   const { metadata } = session;
+  console.log('[webhook] processing checkout.session.completed', {
+    eventId,
+    checkoutSessionId,
+    productId: metadata?.productId || null,
+  });
 
   if (!metadata || metadata.productId == null || metadata.productId === '') {
     console.warn('checkout.session.completed missing product metadata', checkoutSessionId);
@@ -141,6 +164,7 @@ async function handleCheckoutSessionCompleted(event, res, supabase, resend) {
   }
 
   if (claimStatus === 'duplicate') {
+    console.log('[webhook] duplicate delivery', { eventId });
     const { data: row, error: readErr } = await supabase
       .from('stripe_webhook_events')
       .select('email_sent, email_last_error')
@@ -153,12 +177,14 @@ async function handleCheckoutSessionCompleted(event, res, supabase, resend) {
     }
 
     if (row.email_sent) {
+      console.log('[webhook] duplicate already completed', { eventId });
       return res.status(200).json({ received: true, idempotent: true });
     }
 
     try {
-      await sendOrderEmail(resend, metadata);
+      await sendOrderEmail(resend, metadata, adminEmail);
       await markEmailOk(supabase, eventId);
+      console.log('[webhook] duplicate path email recovered', { eventId });
       return res.status(200).json({ received: true, email_retried: true });
     } catch (emailErr) {
       console.error('Resend error (retry path):', emailErr);
@@ -191,10 +217,15 @@ async function handleCheckoutSessionCompleted(event, res, supabase, resend) {
       .eq('id', eventId);
     return res.status(200).json({ received: true, skipped: true, reason: 'already_sold_or_missing' });
   }
+  console.log('[webhook] product marked sold', {
+    eventId,
+    productId: metadata.productId,
+  });
 
   try {
-    await sendOrderEmail(resend, metadata);
+    await sendOrderEmail(resend, metadata, adminEmail);
     await markEmailOk(supabase, eventId);
+    console.log('[webhook] checkout completed successfully', { eventId });
     return res.status(200).json({ received: true });
   } catch (emailErr) {
     console.error('Resend error:', emailErr);
@@ -203,11 +234,6 @@ async function handleCheckoutSessionCompleted(event, res, supabase, resend) {
   }
 }
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-
-const stripe = new Stripe(process.env.STRIPE_SECRET);
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export const config = {
   api: {
     bodyParser: false,
@@ -215,6 +241,31 @@ export const config = {
 };
 
 export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    return res.status(200).json({ ok: true, route: 'stripe-webhook' });
+  }
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  let env;
+  try {
+    env = getEnv();
+  } catch (e) {
+    console.error('[webhook] env error:', e.message);
+    return res.status(500).json({ error: 'Webhook server misconfigured' });
+  }
+
+  const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY);
+  const stripe = new Stripe(env.STRIPE_SECRET);
+  const resend = new Resend(env.RESEND_API_KEY);
+
+  console.log('[webhook] request received', {
+    method: req.method,
+    hasStripeSignature: Boolean(req.headers['stripe-signature']),
+    userAgent: req.headers['user-agent'] || null,
+  });
+
   const chunks = [];
 
   for await (const chunk of req) {
@@ -222,21 +273,28 @@ export default async function handler(req, res) {
   }
 
   const buf = Buffer.concat(chunks);
+  console.log('[webhook] raw payload bytes', { size: buf.length });
 
   const sig = req.headers['stripe-signature'];
+  if (!sig) {
+    console.error('[webhook] missing stripe-signature header');
+    return res.status(400).json({ error: 'Missing stripe-signature' });
+  }
 
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    event = stripe.webhooks.constructEvent(buf, sig, env.STRIPE_WEBHOOK_SECRET);
+    console.log('[webhook] signature verified', { eventId: event.id, eventType: event.type });
   } catch (err) {
-    console.error('Webhook error:', err.message);
+    console.error('[webhook] signature verification failed:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === 'checkout.session.completed') {
-    return handleCheckoutSessionCompleted(event, res, supabase, resend);
+    return handleCheckoutSessionCompleted(event, res, supabase, resend, env.ADMIN_EMAIL);
   }
 
+  console.log('[webhook] ignored event type', { eventType: event.type, eventId: event.id });
   return res.status(200).json({ received: true });
 }
