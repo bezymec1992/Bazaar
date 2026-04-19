@@ -206,7 +206,7 @@ async function releaseClaim(supabase, eventId) {
 
 async function handleCheckoutSessionCompleted(event, res, supabase, resend, adminEmail) {
   const session = event.data.object;
-  const customerEmail = session.customer_details?.email;
+  const customerEmail = session.customer_details?.email || session.customer_email;
   const eventId = event.id;
   const checkoutSessionId = session.id;
   const { metadata } = session;
@@ -297,6 +297,13 @@ async function handleCheckoutSessionCompleted(event, res, supabase, resend, admi
 
   try {
     await sendOrderEmail(resend, metadata, adminEmail);
+
+    if (customerEmail) {
+      await sendCustomerEmail(resend, metadata, customerEmail);
+    } else {
+      console.log('[webhook] no customer email');
+    }
+
     await markEmailOk(supabase, eventId);
     console.log('[webhook] checkout completed successfully', { eventId });
     return res.status(200).json({ received: true });
